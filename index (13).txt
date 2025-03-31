@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot with Snow Animation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6a52086692.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: black;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            position: relative;
+            backdrop-filter: blur(15px);
+        }
+        .chat-header {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px 15px 0 0;
+            color: white;
+            text-align: center;
+            font-size: 24px;
+        }
+        .chat-messages {
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .message.user {
+            background: #f9e79f;
+            color: black;
+            align-self: flex-end;
+        }
+        .message.bot {
+            background: #85e3ff;
+            color: black;
+            align-self: flex-start;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .chat-input button {
+            padding: 10px;
+            border: none;
+            background: #f7797d;
+            color: white;
+            border-radius: 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .snow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            background-color: transparent;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        .star {
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            position: absolute;
+            /* Adjust the following properties for animation */
+            animation: twinkle 1s infinite;
+        }
+        @keyframes twinkle {
+            0%, 20% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            AI Chatbot
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot">Hello! How can I assist you today?</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-message" placeholder="Type your message here..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = Math.random() * window.innerWidth + 'px';
+            star.style.top = Math.random() * window.innerHeight + 'px';
+            document.body.appendChild(star);
+
+            setTimeout(() => {
+                star.remove();
+            }, 3000);
+        }
+
+        setInterval(createStar, 300); // Create a new star every 300ms
+
+        function sendMessage() {
+            var inputField = document.getElementById('user-message');
+            var messageText = inputField.value;
+            if (messageText.trim() === '') return;
+
+            var userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user');
+            userMessage.textContent = messageText;
+
+            document.getElementById('chat-messages').appendChild(userMessage);
+            inputField.value = '';
+
+            setTimeout(() => {
+                var botMessage = document.createElement('div');
+                botMessage.classList.add('message', 'bot');
+                botMessage.textContent = "You said: " + messageText;
+                document.getElementById('chat-messages').appendChild(botMessage);
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
