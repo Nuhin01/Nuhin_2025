@@ -5,11 +5,11 @@ document.getElementById('aiBtn').addEventListener('click', function() {
 
 document.getElementById('closeChatBtn').addEventListener('click', function() {
     document.getElementById('chatbot').classList.add('hidden');
-    document.getElementById('options').style.display = 'grid';
+    document.getElementById('options').style.display = 'grid'; // Re-display the options
 });
 
-document.getElementById('communityBtn').addEventListener('click', function() {
-    window.location.href = 'community.html'; 
+document.getElementById('discussBtn').addEventListener('click', function() {
+    window.location.href = 'discuss.html'; 
 });
 
 document.getElementById('challengeBtn').addEventListener('click', function() {
@@ -24,7 +24,7 @@ document.getElementById('sendBtn').addEventListener('click', function() {
     const messageInput = document.getElementById('message');
     const messageText = messageInput.value.trim();
     if (messageText) {
-        addMessage(messageText, 'user-message');
+        addMessage(messageText, 'user-message');  // Removed "You: " prefix
         messageInput.value = '';
         fetchResponseFromAPI(messageText);
     }
@@ -42,14 +42,12 @@ function addMessage(text, className) {
     messageElement.textContent = text;
     messageElement.className = `message ${className}`; 
     messagesDiv.appendChild(messageElement);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    messagesDiv.scrollTop = messagesDiv.scrollHeight; 
 }
 
 function fetchResponseFromAPI(userInput) {
-    const prompt = `User: ${userInput}\nAI: `;
-    
     const baseURL = 'https://text.pollinations.ai/';
-    const url = baseURL + encodeURIComponent(prompt);
+    const url = baseURL + encodeURIComponent(userInput);
 
     fetch(url)
         .then(response => {
@@ -59,9 +57,9 @@ function fetchResponseFromAPI(userInput) {
             return response.text();
         })
         .then(data => {
-            addMessage(data, 'ai-message');
+            addMessage(data, 'ai-message'); // Removed "Chatbot: " prefix
         })
         .catch(error => {
-            addMessage('Sorry, there was an error processing your request. Please try again.', 'ai-message');
+            addMessage('Sorry, there was an error processing your request. Please try again.', 'ai-message'); // Adjusted for no prefix
         });
 }

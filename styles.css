@@ -2,33 +2,23 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #FAF1E6; /* Light background */
-    color: #333333; /* Dark text */
-    transition: background-color 0.3s, color 0.3s;
+    background-color: #f4f4f4;
 }
 
 header {
-    display: flex; /* Use flexbox to align items */
-    align-items: center; /* Align items vertically */
-    background: linear-gradient(135deg, #FDFAF6, #E4EFE7);
-    color: #333333;
+    background: #0072B8;
+    color: #ffffff;
     padding: 10px 20px;
-}
-
-h1 {
-    margin: 0;
-    line-height: 60px;
-    white-space: nowrap;
-    margin-right: auto; /* Push the navigation to the right */
+    text-align: center;
 }
 
 nav ul {
     list-style: none;
     padding: 0;
-    display: flex; /* Use flex to arrange nav items */
 }
 
 nav ul li {
+    display: inline;
     margin: 0 10px;
 }
 
@@ -37,9 +27,6 @@ nav ul li {
     flex-direction: column;
     align-items: center;
     margin: 20px;
-    background: linear-gradient(135deg, #FAF1E6, #E4EFE7);
-    border-radius: 10px;
-    padding: 20px;
 }
 
 #options {
@@ -50,17 +37,15 @@ nav ul li {
 }
 
 #options button {
-    background: #99BC85;
+    background: #009688;
     color: #ffffff;
     border: none;
-    padding: 15px;
-    border-radius: 15px;
-    font-size: 1.2em;
+    padding: 10px;
     cursor: pointer;
 }
 
 #options button:hover {
-    background: #7DAF6C;
+    background: #00796b;
 }
 
 .hidden {
@@ -68,7 +53,7 @@ nav ul li {
 }
 
 .community-highlights, .social-feed {
-    background: linear-gradient(135deg, #FDFAF6, #E4EFE7);
+    background: #ffffff;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin: 20px;
@@ -78,9 +63,6 @@ nav ul li {
 footer {
     text-align: center;
     margin: 20px;
-    background: linear-gradient(135deg, #FAF1E6, #99BC85);
-    padding: 15px;
-    border-radius: 10px;
 }
 
 #searchBar {
@@ -92,19 +74,18 @@ footer {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    background: #FDFAF6;
+    background: #ffffff;
     width: 100%;
-    height: 400px;
+    height: 400px; /* Fixed height */
     display: flex;
     flex-direction: column;
     position: relative;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: background 0.3s;
 }
 
 #messages {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: auto; /* Keep overflow for messages */
     margin-bottom: 10px;
 }
 
@@ -114,33 +95,21 @@ footer {
 }
 
 .user-message {
-    margin-left: auto;
+    margin-left: auto; /* Aligns user message to the right */
     color: #0072B8;
-    background-color: #E4EFE7;
+    background-color: #e0f7fa;
     border-radius: 5px;
-    padding: 10px;
-    padding-left: 15px;
-    padding-right: 15px;
+    padding: 5px;
     max-width: 75%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: background 0.3s;
 }
 
 .ai-message {
     text-align: left;
-    color: #4CAF50;
-    background-color: #E8F5E9;
+    color: #333;
+    background-color: #e1bee7;
     border-radius: 5px;
-    padding: 10px;
-    padding-left: 15px;
-    padding-right: 15px;
+    padding: 5px;
     max-width: 75%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: background 0.3s;
-}
-
-.message:hover {
-    opacity: 0.9;
 }
 
 #userInput {
@@ -158,7 +127,7 @@ footer {
 
 #userInput button {
     padding: 7px;
-    background: #99BC85;
+    background: #009688;
     color: #ffffff;
     border: none;
     border-radius: 5px;
@@ -167,12 +136,12 @@ footer {
 }
 
 #userInput button:hover {
-    background: #7DAF6C;
+    background: #00796b;
 }
 
 #closeChatBtn {
     margin-bottom: 10px;
-    background: #f44336;
+    background: #f44336; /* Red background for close button */
     color: white;
     border: none;
     padding: 8px 12px;
@@ -181,7 +150,7 @@ footer {
 }
 
 #closeChatBtn:hover {
-    background: #e53935;
+    background: #e53935; /* Darker red on hover */
 }
 
 @media (max-width: 600px) {
