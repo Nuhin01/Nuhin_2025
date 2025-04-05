@@ -13,7 +13,7 @@ document.getElementById('communityBtn').addEventListener('click', function() {
 });
 
 document.getElementById('challengeBtn').addEventListener('click', function() {
-    window.location.href = 'Challenge/Rutine.html'; 
+    window.location.href = '/Challenge/Rutine.html'; 
 });
 
 document.getElementById('educationBtn').addEventListener('click', function() {
