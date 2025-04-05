@@ -1,4 +1,4 @@
-document.getElementById('aiBtn').addEventListener('click', function() {
+444444444444444444444document.getElementById('aiBtn').addEventListener('click', function() {
     document.getElementById('options').style.display = 'none';
     document.getElementById('chatbot').classList.remove('hidden');
 });
@@ -13,7 +13,7 @@ document.getElementById('communityBtn').addEventListener('click', function() {
 });
 
 document.getElementById('challengeBtn').addEventListener('click', function() {
-    window.location.href = 'Challenge/rutine.html'; 
+    window.location.href = 'Challenge/Rutine.html'; 
 });
 
 document.getElementById('educationBtn').addEventListener('click', function() {
