@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>BanglaMinds Community</title>
+</head>
+<body class="light-mode">
+    <header>
+        <h1>BanglaMinds</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Top 1%</a></li>
+                <li><a href="#">Future</a></li>
+                <li><a href="#">About Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="feature-section">
+            <div id="options">
+                <button id="aiBtn">AI</button>
+                <button id="communityBtn">Community</button>
+                <button id="challengeBtn">Challenge</button>
+                <button id="educationBtn">Education</button>
+            </div>
+            <div id="chatbot" class="hidden">
+                <h2>Chatbot</h2>
+                <button id="closeChatBtn">Close Chat</button>
+                <div id="chatbox">
+                    <div id="messages"></div>
+                    <div id="userInput">
+                        <input type="text" id="message" placeholder="Type a message..." autocomplete="off">
+                        <button id="sendBtn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="community-highlights">
+            <h2>Top 5 Communities of the Week</h2>
+            <ul>
+                <li><strong>Technology</strong> - Tech enthusiasts sharing and learning innovations.</li>
+                <li><strong>Career</strong> - Focused on career advancement and networking.</li>
+                <li><strong>Entrepreneurship</strong> - Support and resources for new entrepreneurs.</li>
+                <li><strong>Leadership</strong> - Skills and development for aspiring leaders.</li>
+                <li><strong>Books and Knowledge</strong> - Discussing and reviewing books.</li>
+            </ul>
+        </section>
+
+        <section class="social-feed">
+            <h2>Social Feed</h2>
+            <div id="feed">
+                <p>We are integrating some of the best Bangladeshi Reddit community feeds via their API. Stay tuned! After establishing our own community, there will be our own community feed. Stay tuned!</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <input type="text" placeholder="Search..." id="searchBar">
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
