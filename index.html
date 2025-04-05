@@ -3,155 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creative Student Community</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #4CAF50;
-            padding: 10px 20px;
-            color: white;
-        }
-
-        header h1 {
-            margin: 0;
-        }
-
-        nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        nav a.secret {
-            color: red;
-        }
-
-        .options-table {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .option {
-            background-color: #fff;
-            border: 2px solid #4CAF50;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            font-size: 1.5em;
-            transition: transform 0.3s;
-        }
-
-        .option:hover {
-            transform: scale(1.05);
-        }
-
-        .community-highlights, .community-feed {
-            padding: 20px;
-            background-color: #fff;
-            margin: 20px;
-            border-radius: 8px;
-        }
-
-        .community {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .feed-post {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <title>BanglaMinds Community</title>
 </head>
-<body>
-
+<body class="light-mode">
     <header>
-        <h1>Creative Student Community</h1>
+        <h1>BanglaMinds</h1>
         <nav>
-            <a href="#ai-tools">AI Tools</a>
-            <a href="#discuss">Discuss</a>
-            <a href="#secret" class="secret">Secret Membership</a>
-            <a href="#about">About Us</a>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Top 1%</a></li>
+                <li><a href="#">Future</a></li>
+                <li><a href="#">About Us</a></li>
+            </ul>
         </nav>
     </header>
 
     <main>
-        <section class="options-table">
-            <div class="option" id="ai-tools" onclick="showFeature('AI Tools')">AI Tools</div>
-            <div class="option" id="discuss" onclick="showFeature('Discuss')">Discuss</div>
-            <div class="option" id="secret" onclick="showFeature('Secret Membership')">Secret Membership</div>
-            <div class="option" id="about" onclick="showFeature('About Us')">About Us</div>
+        <section class="feature-section">
+            <div id="options">
+                <button id="aiBtn">AI</button>
+                <button id="communityBtn">Community</button>
+                <button id="challengeBtn">Challenge</button>
+                <button id="educationBtn">Education</button>
+            </div>
+            <div id="chatbot" class="hidden">
+                <h2>Chatbot</h2>
+                <button id="closeChatBtn">Close Chat</button>
+                <div id="chatbox">
+                    <div id="messages"></div>
+                    <div id="userInput">
+                        <input type="text" id="message" placeholder="Type a message..." autocomplete="off">
+                        <button id="sendBtn">Send</button>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="community-highlights">
-            <h2>Top 5 Communities</h2>
-            <div class="community">
-                <h3>Community 1</h3>
-                <p>Brief description of Community 1.</p>
-            </div>
-            <div class="community">
-                <h3>Community 2</h3>
-                <p>Brief description of Community 2.</p>
-            </div>
-            <div class="community">
-                <h3>Community 3</h3>
-                <p>Brief description of Community 3.</p>
-            </div>
-            <div class="community">
-                <h3>Community 4</h3>
-                <p>Brief description of Community 4.</p>
-            </div>
-            <div class="community">
-                <h3>Community 5</h3>
-                <p>Brief description of Community 5.</p>
-            </div>
+            <h2>Top 5 Communities of the Week</h2>
+            <ul>
+                <li><strong>Technology</strong> - Tech enthusiasts sharing and learning innovations.</li>
+                <li><strong>Career</strong> - Focused on career advancement and networking.</li>
+                <li><strong>Entrepreneurship</strong> - Support and resources for new entrepreneurs.</li>
+                <li><strong>Leadership</strong> - Skills and development for aspiring leaders.</li>
+                <li><strong>Books and Knowledge</strong> - Discussing and reviewing books.</li>
+            </ul>
         </section>
 
-        <section class="community-feed">
-            <h2>Community Feed</h2>
-            <div class="feed-post">
-                <h4>Post Title 1</h4>
-                <p>This is a brief description of the first post in the community feed.</p>
-            </div>
-            <div class="feed-post">
-                <h4>Post Title 2</h4>
-                <p>This is a brief description of the second post in the community feed.</p>
-            </div>
-            <div class="feed-post">
-                <h4>Post Title 3</h4>
-                <p>This is a brief description of the third post in the community feed.</p>
+        <section class="social-feed">
+            <h2>Social Feed</h2>
+            <div id="feed">
+                <p>We are integrating some of the best Bangladeshi Reddit community feeds via their API. Stay tuned! After establishing our own community, there will be our own community feed. Stay tuned!</p>
             </div>
         </section>
     </main>
 
-    <script>
-        function showFeature(feature) {
-            alert("You clicked on: " + feature);
-            // Here you can add functionality to display the selected feature
-        }
-    </script>
+    <footer>
+        <input type="text" placeholder="Search..." id="searchBar">
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
