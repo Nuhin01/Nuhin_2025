@@ -75,6 +75,101 @@ nav ul li {
     padding: 20px;
 }
 
+#post-form {
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#posts {
+    margin-top: 20px;
+}
+
+.post {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.like-button, .comment-button, .reply-button, .share-button {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.like-button:hover, .comment-button:hover, .reply-button:hover, .share-button:hover {
+    background-color: #007BB5;
+}
+
+.comments-section {
+    margin-top: 10px;
+}
+
+.comment-input {
+    width: 80%;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.comment-button {
+    background-color: #4CAF50;
+}
+
+.username {
+    color: red; /* Style for usernames */
+}
+
+.reply-section {
+    margin-top: 5px;
+    display: none; /* Initially hide reply input */
+}
+
+.post-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+}
+
+.date {
+    font-size: 0.8em;
+    color: #888; /* Style for date */
+}
+
+/* Added styles for formatting */
+.post-content, .reply-content {
+    margin-top: 5px;
+}
 footer {
     text-align: center;
     margin: 20px;
