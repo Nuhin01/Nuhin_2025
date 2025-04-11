@@ -87,10 +87,10 @@ document.getElementById('post-button').addEventListener('click', function() {
             <p class="post-content">${postContent}</p>
             ${imageFile ? '<img class="post-image" src="" alt="Post Image">' : ''}
             <button class="like-button">Like</button> <span class="like-count">0</span>
-            <button class="share-button">Share</button>
-            <div class="comments-section">
+            <button class="comment-button">Comment</button>
+            <div class="comments-section" style="display: none;">
                 <input type="text" class="comment-input" placeholder="Add a comment...">
-                <button class="comment-button">Comment</button>
+                <button class="comment-submit-button">Comment</button>
                 <div class="comment-list"></div>
             </div>
         `;
@@ -105,7 +105,7 @@ document.getElementById('post-button').addEventListener('click', function() {
             reader.readAsDataURL(imageFile);
         }
 
-        // Add event listeners for like and share functionality
+        // Add event listeners for like functionality
         const likeButton = newPost.querySelector('.like-button');
         const likeCount = newPost.querySelector('.like-count');
         likeButton.addEventListener('click', function() {
@@ -113,18 +113,18 @@ document.getElementById('post-button').addEventListener('click', function() {
             likeCount.textContent = currentLikes + 1;
         });
 
-        // Share button functionality
-        const shareButton = newPost.querySelector('.share-button');
-        shareButton.addEventListener('click', function() {
-            alert(`Post shared: ${postContent}`);
-        });
-
         // Comment functionality
         const commentButton = newPost.querySelector('.comment-button');
+        const commentsSection = newPost.querySelector('.comments-section');
         const commentInput = newPost.querySelector('.comment-input');
+        const commentSubmitButton = newPost.querySelector('.comment-submit-button');
         const commentList = newPost.querySelector('.comment-list');
 
         commentButton.addEventListener('click', function() {
+            commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+        });
+
+        commentSubmitButton.addEventListener('click', function() {
             let commentContent = commentInput.value;
             if (commentContent) {
                 addComment(commentList, commentContent, ipAddress);
@@ -228,7 +228,7 @@ function addReply(commentItem, replyContent, ipAddress) {
     submitReplyButton.addEventListener('click', function() {
         let replyContent = replyInput.value;
         if (replyContent) {
-            addReply(replyItem, replyContent, ipAddress);
+            addReply(commentItem, replyContent, ipAddress);
             replyInput.value = '';
             replySection.style.display = 'none'; // Hide reply input after submitting
         } else {
