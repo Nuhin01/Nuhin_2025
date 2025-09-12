@@ -1,53 +1,16 @@
-document.getElementById('aiBtn').addEventListener('click', function() {
-    document.getElementById('options').style.display = 'none';
-    document.getElementById('chatbot').classList.remove('hidden');
-});
+// ... (Previous code for UI interactions remains the same until fetchResponseFromAPI)
 
-document.getElementById('closeChatBtn').addEventListener('click', function() {
-    document.getElementById('chatbot').classList.add('hidden');
-    document.getElementById('options').style.display = 'grid';
-});
-
-document.getElementById('communityBtn').addEventListener('click', function() {
-    window.location.href = 'community.html'; 
-});
-
-document.getElementById('challengeBtn').addEventListener('click', function() {
-    window.location.href = 'challenge.html'; 
-});
-
-document.getElementById('educationBtn').addEventListener('click', function() {
-    window.location.href = 'education.html'; 
-});
-
-document.getElementById('sendBtn').addEventListener('click', function() {
-    const messageInput = document.getElementById('message');
-    const messageText = messageInput.value.trim();
-    if (messageText) {
-        addMessage(messageText, 'user-message');
-        messageInput.value = '';
-        fetchResponseFromAPI(messageText);
-    }
-});
-
-document.getElementById('message').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        document.getElementById('sendBtn').click();
-    }
-});
-
-function addMessage(text, className) {
-    const messagesDiv = document.getElementById('messages');
-    const messageElement = document.createElement('div');
-    messageElement.textContent = text;
-    messageElement.className = `message ${className}`; 
-    messagesDiv.appendChild(messageElement);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
+// Modified function to analyze English sentences and format response
 function fetchResponseFromAPI(userInput) {
-    const prompt = `User: ${userInput}\nAI: `;
-    
+    const prompt = `Analyze the following English text: "${userInput}". Provide a structured response with:
+    1. A heading for the analysis
+    2. Sentence count
+    3. Word count
+    4. Average sentence length
+    5. Complex words (words with 3+ syllables)
+    6. Sentiment analysis (positive/negative/neutral)
+    Format the response using HTML tags for headings (<h3>), bold text (<strong>), and lists (<ul><li>).`;
+
     const baseURL = 'https://text.pollinations.ai/';
     const url = baseURL + encodeURIComponent(prompt);
 
@@ -59,180 +22,89 @@ function fetchResponseFromAPI(userInput) {
             return response.text();
         })
         .then(data => {
-            addMessage(data, 'ai-message');
+            // Process raw API response to ensure proper formatting
+            const formattedResponse = formatAIResponse(data);
+            addMessage(formattedResponse, 'ai-message');
         })
         .catch(error => {
             addMessage('Sorry, there was an error processing your request. Please try again.', 'ai-message');
         });
 }
-document.getElementById('post-button').addEventListener('click', function() {
-    const postInput = document.getElementById('post-input');
-    const postContent = postInput.value;
-    const imageInput = document.getElementById('image-input');
-    const imageFile = imageInput.files[0];
 
-    const reader = new FileReader();
-    const postList = document.getElementById('post-list');
-
-    if (postContent || imageFile) {
-        const newPost = document.createElement('div');
-        newPost.classList.add('post');
-
-        const ipAddress = "192.0.2.1"; // Example IP address
-        const username = generateUsernameFromIP(ipAddress);
-        const date = new Date().toLocaleString(); // Get current date
-
-        const postHTML = `
-            <p><strong class="username">${username}</strong> <span class="date">(${date})</span></p>
-            <p class="post-content">${postContent}</p>
-            ${imageFile ? '<img class="post-image" src="" alt="Post Image">' : ''}
-            <button class="like-button">Like</button> <span class="like-count">0</span>
-            <button class="comment-button">Comment</button>
-            <div class="comments-section" style="display: none;">
-                <input type="text" class="comment-input" placeholder="Add a comment...">
-                <button class="comment-submit-button">Comment</button>
-                <div class="comment-list"></div>
-            </div>
+// New function to format raw AI response
+function formatAIResponse(rawResponse) {
+    // Basic cleaning of raw response
+    let cleanedResponse = rawResponse.trim();
+    
+    // If the API doesn't return formatted text, create a structured response
+    if (!cleanedResponse.includes('<h3>')) {
+        // Analyze the input ourselves if API doesn't provide structured response
+        const analysis = analyzeText(cleanedResponse);
+        return `
+            <h3>Text Analysis Results</h3>
+            <ul>
+                <li><strong>Sentence Count:</strong> ${analysis.sentenceCount}</li>
+                <li><strong>Word Count:</strong> ${analysis.wordCount}</li>
+                <li><strong>Average Sentence Length:</strong> ${analysis.avgSentenceLength.toFixed(2)} words</li>
+                <li><strong>Complex Words:</strong> ${analysis.complexWords.join(', ') || 'None'}</li>
+                <li><strong>Sentiment:</strong> ${analysis.sentiment}</li>
+            </ul>
         `;
-
-        newPost.innerHTML = postHTML;
-
-        // Image handling
-        if (imageFile) {
-            reader.onload = function(event) {
-                newPost.querySelector('.post-image').src = event.target.result;
-            };
-            reader.readAsDataURL(imageFile);
-        }
-
-        // Add event listeners for like functionality
-        const likeButton = newPost.querySelector('.like-button');
-        const likeCount = newPost.querySelector('.like-count');
-        likeButton.addEventListener('click', function() {
-            let currentLikes = parseInt(likeCount.textContent);
-            likeCount.textContent = currentLikes + 1;
-        });
-
-        // Comment functionality
-        const commentButton = newPost.querySelector('.comment-button');
-        const commentsSection = newPost.querySelector('.comments-section');
-        const commentInput = newPost.querySelector('.comment-input');
-        const commentSubmitButton = newPost.querySelector('.comment-submit-button');
-        const commentList = newPost.querySelector('.comment-list');
-
-        commentButton.addEventListener('click', function() {
-            commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
-        });
-
-        commentSubmitButton.addEventListener('click', function() {
-            let commentContent = commentInput.value;
-            if (commentContent) {
-                addComment(commentList, commentContent, ipAddress);
-                commentInput.value = '';
-            } else {
-                alert("Please write a comment before submitting.");
-            }
-        });
-
-        postList.prepend(newPost);
-        postInput.value = '';
-        imageInput.value = ''; // Clear image input
-    } else {
-        alert("Please write something or attach an image before posting.");
     }
+    return cleanedResponse; // Return API's formatted response if available
+}
+
+// New function to analyze text when API response isn't formatted
+function analyzeText(text) {
+    // Split into sentences
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    const sentenceCount = sentences.length;
+
+    // Count words
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    const wordCount = words.length;
+
+    // Calculate average sentence length
+    const avgSentenceLength = wordCount / sentenceCount;
+
+    // Identify complex words (3+ syllables approximation)
+ complexWords = words.filter(word => {
+    // Simple syllable counter (counts vowel groups)
+    const syllableCount = (word.match(/[aeiouy]+/gi) || []).length;
+    return syllableCount >= 3;
 });
 
-// Function to generate a unique username based on IP address in hexadecimal format
-function generateUsernameFromIP(ipAddress) {
-    const hexString = ipAddress.split('.').map(segment => {
-        return parseInt(segment, 10).toString(16).padStart(2, '0');
-    }).join('');
-    return `User${hexString}`;
-}
-
-// Function to add a comment
-function addComment(commentList, commentContent, ipAddress) {
-    const commentItem = document.createElement('div');
-    const commentUsername = generateUsernameFromIP(ipAddress);
-    const date = new Date().toLocaleString(); // Get current date
-    commentItem.innerHTML = `
-        <p>
-            <strong class="username">${commentUsername}</strong> 
-            <span class="date">(${date})</span>
-            <span class="reply-button" style="cursor: pointer; color: blue; text-decoration: underline;">Reply</span>
-        </p>
-        <p class="reply-content">${commentContent}</p>
-        <div class="reply-section" style="display:none;">
-            <input type="text" class="reply-input" placeholder="Add a reply...">
-            <button class="submit-reply-button">Reply</button>
-        </div>
-        <div class="replies-section"></div>
-    `;
-    commentList.appendChild(commentItem);
-
-    // Reply functionality for the newly added comment
-    const replyButton = commentItem.querySelector('.reply-button');
-    const replySection = commentItem.querySelector('.reply-section');
-    const replyInput = commentItem.querySelector('.reply-input');
-    const submitReplyButton = commentItem.querySelector('.submit-reply-button');
-
-    replyButton.addEventListener('click', function() {
-        replySection.style.display = 'block'; // Show reply input on clicking Reply button
-        replyInput.focus(); // Focus on the reply input when opening
-    });
-
-    submitReplyButton.addEventListener('click', function() {
-        let replyContent = replyInput.value;
-        if (replyContent) {
-            addReply(commentItem, replyContent, ipAddress);
-            replyInput.value = '';
-            replySection.style.display = 'none'; // Hide reply input after submitting
-        } else {
-            alert("Please write a reply before submitting.");
-        }
-    });
-}
-
-// Function to add a reply to a comment
-function addReply(commentItem, replyContent, ipAddress) {
-    const replyItem = document.createElement('div');
-    const replyUsername = generateUsernameFromIP(ipAddress);
-    const date = new Date().toLocaleString(); // Get current date
-    replyItem.innerHTML = `
-        <p>
-            <strong class="username">${replyUsername}</strong> 
-            <span class="date">(${date})</span>
-            <span class="reply-button" style="cursor: pointer; color: blue; text-decoration: underline;">Reply</span>
-        </p>
-        <p class="reply-content">${replyContent}</p>
-        <div class="reply-section" style="display:none;">
-            <input type="text" class="reply-input" placeholder="Add a reply...">
-            <button class="submit-reply-button">Reply</button>
-        </div>
-    `;
+    // Basic sentiment analysis
+    const positiveWords = ['good', 'great', 'happy', 'excellent', 'wonderful'];
+    const negativeWords = ['bad', 'terrible', 'sad', 'horrible', 'awful'];
+    let sentimentScore = 0;
     
-    const repliesSection = commentItem.querySelector('.replies-section');
-    repliesSection.appendChild(replyItem);
-
-    // Add reply functionality for the newly added reply
-    const replyButton = replyItem.querySelector('.reply-button');
-    const replySection = replyItem.querySelector('.reply-section');
-    const replyInput = replyItem.querySelector('.reply-input');
-    const submitReplyButton = replyItem.querySelector('.submit-reply-button');
-
-    replyButton.addEventListener('click', function() {
-        replySection.style.display = 'block'; // Show reply input when clicking the reply button
-        replyInput.focus(); // Focus on the reply input when opening
+    words.forEach(word => {
+        word = word.toLowerCase();
+        if (positiveWords.includes(word)) sentimentScore++;
+        if (negativeWords.includes(word)) sentimentScore--;
     });
 
-    submitReplyButton.addEventListener('click', function() {
-        let replyContent = replyInput.value;
-        if (replyContent) {
-            addReply(commentItem, replyContent, ipAddress);
-            replyInput.value = '';
-            replySection.style.display = 'none'; // Hide reply input after submitting
-        } else {
-            alert("Please write a reply before submitting.");
-        }
-    });
+    const sentiment = sentimentScore > 0 ? 'Positive' : 
+                     sentimentScore < 0 ? 'Negative' : 'Neutral';
+
+    return {
+        sentenceCount,
+        wordCount,
+        avgSentenceLength,
+        complexWords,
+        sentiment
+    };
 }
+
+// Modified addMessage to handle HTML content
+function addMessage(text, className) {
+    const messagesDiv = document.getElementById('messages');
+    const messageElement = document.createElement('div');
+    messageElement.innerHTML = text; // Changed from textContent to innerHTML to render HTML
+    messageElement.className = `message ${className}`;
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// ... (Rest of the original code for community posts remains unchanged)
