@@ -283,3 +283,23 @@ button:hover {
 .post-content, .reply-content {
     margin-top: 5px;
 }
+
+.ai-message h3 {
+    font-size: 1.2em;
+    margin: 0.5em 0;
+    color: #333;
+}
+
+.ai-message ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 0.5em 0;
+}
+
+.ai-message li {
+    margin: 0.3em 0;
+}
+
+.ai-message strong {
+    color: #000;
+}
