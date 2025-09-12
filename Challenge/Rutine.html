@@ -1,28 +1,389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Your Exam Routine Effortlessly</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+  <title>Education Board Bangladesh - Result Checker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="education board bangladesh results ssc hsc">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body with futuristic dark gradient */
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* Main container */
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 2rem auto;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 246, 255, 0.5);
+      border: 1px solid #00f6ff;
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+    }
+
+    /* Header section */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .logo img {
+      filter: drop-shadow(0 0 10px #00f6ff);
+      transition: transform 0.3s ease;
+      max-width: 100px;
+      height: auto;
+    }
+
+    .logo img:hover {
+      transform: scale(1.1);
+    }
+
+    /* Titles */
+    #site_title_des, #site_title {
+      color: #00f6ff;
+      text-shadow: 0 0 10px #00f6ff, 0 0 20px #00f6ff;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    #site_title_des {
+      font-size: 1.5rem;
+      font-weight: 400;
+    }
+
+    #site_title {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    /* Navigation link */
+    .nav {
+      text-align: right;
+      margin: 1rem 0;
+    }
+
+    .links02 {
+      color: #00f6ff;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 246, 255, 0.2);
+      border-radius: 5px;
+    }
+
+    .links02:hover {
+      text-shadow: 0 0 10px #00f6ff;
+      transform: translateY(-2px);
+      display: inline-block;
+    }
+
+    /* Form styling */
+    fieldset {
+      border: 1px solid #00f6ff;
+      border-radius: 10px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 15px rgba(0, 246, 255, 0.3);
+    }
+
+    .form-table {
+      width: 100%;
+      color: #ffffff;
+      font-size: 1.1rem;
+    }
+
+    .form-table td {
+      padding: 0.5rem;
+    }
+
+    /* Form inputs and selects */
+    .textfield {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #00f6ff;
+      border-radius: 5px;
+      color: #ffffff;
+      padding: 0.5rem;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.3s ease;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .textfield:focus {
+      outline: none;
+      box-shadow: 0 0 10px #00f6ff;
+    }
+
+    /* Buttons */
+    .button {
+      background: linear-gradient(45deg, #00f6ff, #ff00ff);
+      border: none;
+      border-radius: 5px;
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0 0.5rem;
+    }
+
+    .button:hover {
+      box-shadow: 0 0 15px #00f6ff;
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    .footer {
+      background: rgba(0, 0, 0, 0.5);
+      color: #ffffff;
+      font-size: 0.9rem;
+      padding: 1rem;
+      border-radius: 0 0 15px 15px;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .footer img {
+      filter: drop-shadow(0 0 10px #00f6ff);
+      max-width: 83px;
+      height: auto;
+      vertical-align: middle;
+    }
+
+    /* Glowing animation */
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 5px #00f6ff, 0 0 10px #00f6ff;
+      }
+      to {
+        text-shadow: 0 0 10px #00f6ff, 0 0 20px #00f6ff;
+      }
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+      }
+      #site_title {
+        font-size: 1.5rem;
+      }
+      #site_title_des {
+        font-size: 1.2rem;
+      }
+      .form-table {
+        font-size: 1rem;
+      }
+      .textfield {
+        max-width: 100%;
+      }
+      .header {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Generate Your Exam Routine Effortlessly</h1>
-        <input type="text" id="userName" placeholder="Enter your name" required>
-        <input type="text" id="examTime" placeholder="Enter your exam time (7 PM to 10 PM)" required>
-        <button id="generateRoutine">Generate Routine</button>
-        <button id="downloadPDF" style="display:none;">Download PDF</button>
-        <div id="routineOutput" class="routine-output"></div>
-        <p class="credit">Created by Nuhin</p> <!-- Changed name to Nuhin -->
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <img src="https://via.placeholder.com/100x100?text=BD+Logo" alt="Bangladesh Logo">
+      </div>
+      <div>
+        <h1 id="site_title_des">Ministry of Education</h1>
+        <h1 id="site_title">Intermediate and Secondary Education Boards Bangladesh</h1>
+      </div>
     </div>
-    <div id="mouseEffects"></div>
-    
-    <footer class="footer">
-        <p>Created by Nuhin</p>
-    </footer>
+    <div class="nav">
+      <a href="http://www.educationboard.gov.bd" class="links02">Official Website of Education Board</a>
+    </div>
+    <form name="result" method="get" action="http://www.educationboardresults.gov.bd/" onsubmit="return app_form_validator(this)">
+      <fieldset>
+        <table class="form-table">
+          <tr>
+            <td width="12%">&nbsp;</td>
+            <td width="24%">&nbsp;</td>
+            <td width="7%">&nbsp;</td>
+            <td width="46%">&nbsp;</td>
+            <td width="11%">&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>Examination</td>
+            <td>:</td>
+            <td>
+              <select name="exam" class="textfield" id="exam">
+                <option value="ssc">SSC/Dakhil/Equivalent</option>
+                <option value="jsc">JSC/JDC</option>
+                <option value="ssc_voc">SSC(Vocational)</option>
+                <option value="hsc">HSC/Alim</option>
+                <option value="hsc_voc">HSC(Vocational)</option>
+                <option value="hsc_hbm">HSC(BM)</option>
+                <option value="hsc_dic">Diploma in Commerce</option>
+                <option value="hsc_dbs">Diploma in Business Studies</option>
+              </select>
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>Year</td>
+            <td>:</td>
+            <td>
+              <select name="year" class="textfield" id="year">
+                <option value="" selected>Select One</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+                <option value="2019">2019</option>
+                <option value="2018">2018</option>
+                <option value="2017">2017</option>
+                <option value="2016">2016</option>
+                <option value="2015">2015</option>
+              </select>
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>Board</td>
+            <td>:</td>
+            <td>
+              <select name="board" class="textfield" id="board">
+                <option value="" selected>Select One</option>
+                <option value="barisal">Barisal</option>
+                <option value="chittagong">Chittagong</option>
+                <option value="comilla">Comilla</option>
+                <option value="dhaka">Dhaka</option>
+                <option value="dinajpur">Dinajpur</option>
+                <option value="jessore">Jessore</option>
+                <option value="mymensingh">Mymensingh</option>
+                <option value="rajshahi">Rajshahi</option>
+                <option value="sylhet">Sylhet</option>
+                <option value="madrasah">Madrasah</option>
+                <option value="tec">Technical</option>
+                <option value="dibs">DIBS(Dhaka)</option>
+              </select>
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>Roll</td>
+            <td>:</td>
+            <td>
+              <input name="roll" type="text" class="textfield" id="roll" maxlength="6" onkeypress="return onlyNumbers(event)">
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>Reg: No</td>
+            <td>:</td>
+            <td>
+              <input name="reg" type="text" class="textfield" id="reg" maxlength="10" onkeypress="return onlyNumbers(event)">
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td id="math_question"></td>
+            <td>=</td>
+            <td>
+              <input name="value_s" type="text" class="textfield" id="value_s" maxlength="4" onkeypress="return onlyNumbers(event)">
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>
+              <input type="reset" class="button" value="Reset" onclick="generateMath()">
+              <input type="submit" class="button" value="Submit">
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+        </table>
+      </fieldset>
+    </form>
+    <div class="footer">
+      &copy;2005-2025 Ministry of Education, All rights reserved. | Powered by
+      <img src="https://via.placeholder.com/83x44?text=Powered" alt="Powered By">
+    </div>
+  </div>
 
-    <script src="script.js"></script>
+  <script>
+    // Dynamic Math Captcha
+    let correctAnswer;
+    function generateMath() {
+      const num1 = Math.floor(Math.random() * 10) + 1;
+      const num2 = Math.floor(Math.random() * 10) + 1;
+      const operation = Math.random() > 0.5 ? '+' : '-';
+      let question, answer;
+      if (operation === '+') {
+        question = `${num1} + ${num2}`;
+        answer = num1 + num2;
+      } else {
+        question = `${Math.max(num1, num2)} - ${Math.min(num1, num2)}`;
+        answer = Math.max(num1, num2) - Math.min(num1, num2);
+      }
+      document.getElementById('math_question').innerText = question;
+      correctAnswer = answer;
+      document.getElementById('value_s').value = '';
+    }
+
+    // Form Validator
+    function app_form_validator(form) {
+      const answer = parseInt(document.getElementById('value_s').value);
+      if (isNaN(answer) || answer !== correctAnswer) {
+        alert('Incorrect math answer! Please try again.');
+        generateMath();
+        return false;
+      }
+      if (form.year.value === '' || form.board.value === '' || form.roll.value === '' || form.reg.value === '') {
+        alert('Please fill all required fields.');
+        return false;
+      }
+      return true;
+    }
+
+    // Restrict to numbers only
+    function onlyNumbers(event) {
+      const char = String.fromCharCode(event.which || event.keyCode);
+      if (!/[0-9]/.test(char)) {
+        event.preventDefault();
+        return false;
+      }
+      return true;
+    }
+
+    // Initialize captcha on load
+    window.onload = generateMath;
+  </script>
 </body>
-</html>
+    </html>
