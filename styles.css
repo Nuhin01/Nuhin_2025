@@ -279,11 +279,6 @@ button:hover {
     color: #888; /* Style for date */
 }
 
-/* Added styles for formatting */
-.post-content, .reply-content {
-    margin-top: 5px;
-}
-
 .ai-message h3 {
     font-size: 1.2em;
     margin: 0.5em 0;
@@ -302,4 +297,4 @@ button:hover {
 
 .ai-message strong {
     color: #000;
-}
+    }
