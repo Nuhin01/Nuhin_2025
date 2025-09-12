@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Education Board Bangladesh - Result Checker</title>
+  <title>Galactic Education Nexus - Astro-Result Portal</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="keywords" content="education board bangladesh results ssc hsc">
+  <meta name="keywords" content="futuristic education results, astro-exams, stellar grades">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* Reset default styles */
@@ -29,7 +29,7 @@
     /* Main container */
     .container {
       width: 90%;
-      max-width: 800px;
+      max-width: 900px;
       margin: 2rem auto;
       background: rgba(0, 0, 0, 0.7);
       border-radius: 15px;
@@ -37,6 +37,7 @@
       border: 1px solid #00f6ff;
       backdrop-filter: blur(10px);
       padding: 2rem;
+      animation: fadeIn 1s ease-in;
     }
 
     /* Header section */
@@ -44,7 +45,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
     .logo img {
@@ -55,7 +56,7 @@
     }
 
     .logo img:hover {
-      transform: scale(1.1);
+      transform: scale(1.1) rotate(5deg);
     }
 
     /* Titles */
@@ -73,6 +74,51 @@
     #site_title {
       font-size: 2rem;
       font-weight: 700;
+    }
+
+    /* Motivational message */
+    .motivation {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #ff00ff;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 5px #ff00ff;
+    }
+
+    /* Iframe container */
+    .iframe-container {
+      position: relative;
+      width: 100%;
+      height: 700px; /* Adjust based on official form height */
+      border: 2px solid #00f6ff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 246, 255, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .fallback {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: #00f6ff;
+      font-size: 1.1rem;
+    }
+
+    .fallback a {
+      color: #ff00ff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .fallback a:hover {
+      text-shadow: 0 0 10px #ff00ff;
     }
 
     /* Navigation link */
@@ -97,61 +143,6 @@
       display: inline-block;
     }
 
-    /* Form styling */
-    fieldset {
-      border: 1px solid #00f6ff;
-      border-radius: 10px;
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 15px rgba(0, 246, 255, 0.3);
-    }
-
-    .form-table {
-      width: 100%;
-      color: #ffffff;
-      font-size: 1.1rem;
-    }
-
-    .form-table td {
-      padding: 0.5rem;
-    }
-
-    /* Form inputs and selects */
-    .textfield {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid #00f6ff;
-      border-radius: 5px;
-      color: #ffffff;
-      padding: 0.5rem;
-      font-family: 'Orbitron', sans-serif;
-      transition: all 0.3s ease;
-      width: 100%;
-      max-width: 200px;
-    }
-
-    .textfield:focus {
-      outline: none;
-      box-shadow: 0 0 10px #00f6ff;
-    }
-
-    /* Buttons */
-    .button {
-      background: linear-gradient(45deg, #00f6ff, #ff00ff);
-      border: none;
-      border-radius: 5px;
-      color: #ffffff;
-      padding: 0.5rem 1rem;
-      font-family: 'Orbitron', sans-serif;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin: 0 0.5rem;
-    }
-
-    .button:hover {
-      box-shadow: 0 0 15px #00f6ff;
-      transform: translateY(-2px);
-    }
-
     /* Footer */
     .footer {
       background: rgba(0, 0, 0, 0.5);
@@ -170,7 +161,7 @@
       vertical-align: middle;
     }
 
-    /* Glowing animation */
+    /* Animations */
     @keyframes glow {
       from {
         text-shadow: 0 0 5px #00f6ff, 0 0 10px #00f6ff;
@@ -178,6 +169,11 @@
       to {
         text-shadow: 0 0 10px #00f6ff, 0 0 20px #00f6ff;
       }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Responsive design */
@@ -191,15 +187,12 @@
       #site_title_des {
         font-size: 1.2rem;
       }
-      .form-table {
-        font-size: 1rem;
-      }
-      .textfield {
-        max-width: 100%;
-      }
       .header {
         flex-direction: column;
         text-align: center;
+      }
+      .iframe-container {
+        height: 600px;
       }
     }
   </style>
@@ -208,182 +201,46 @@
   <div class="container">
     <div class="header">
       <div class="logo">
-        <img src="https://via.placeholder.com/100x100?text=BD+Logo" alt="Bangladesh Logo">
+        <img src="https://via.placeholder.com/100x100?text=Astro+Logo" alt="Galactic Nexus Logo">
       </div>
       <div>
-        <h1 id="site_title_des">Ministry of Education</h1>
-        <h1 id="site_title">Intermediate and Secondary Education Boards Bangladesh</h1>
+        <h1 id="site_title_des">Galactic Education Nexus</h1>
+        <h1 id="site_title">Astro-Result Portal</h1>
       </div>
     </div>
-    <div class="nav">
-      <a href="http://www.educationboard.gov.bd" class="links02">Official Website of Education Board</a>
+    <div class="motivation">
+      Unlock Your Cosmic Potential! Your Stellar Journey Begins Here – Access Official Results with Secure Captcha!
     </div>
-    <form name="result" method="get" action="http://www.educationboardresults.gov.bd/" onsubmit="return app_form_validator(this)">
-      <fieldset>
-        <table class="form-table">
-          <tr>
-            <td width="12%">&nbsp;</td>
-            <td width="24%">&nbsp;</td>
-            <td width="7%">&nbsp;</td>
-            <td width="46%">&nbsp;</td>
-            <td width="11%">&nbsp;</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>Examination</td>
-            <td>:</td>
-            <td>
-              <select name="exam" class="textfield" id="exam">
-                <option value="ssc">SSC/Dakhil/Equivalent</option>
-                <option value="jsc">JSC/JDC</option>
-                <option value="ssc_voc">SSC(Vocational)</option>
-                <option value="hsc">HSC/Alim</option>
-                <option value="hsc_voc">HSC(Vocational)</option>
-                <option value="hsc_hbm">HSC(BM)</option>
-                <option value="hsc_dic">Diploma in Commerce</option>
-                <option value="hsc_dbs">Diploma in Business Studies</option>
-              </select>
-            </td>
-            <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>Year</td>
-            <td>:</td>
-            <td>
-              <select name="year" class="textfield" id="year">
-                <option value="" selected>Select One</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-                <option value="2020">2020</option>
-                <option value="2019">2019</option>
-                <option value="2018">2018</option>
-                <option value="2017">2017</option>
-                <option value="2016">2016</option>
-                <option value="2015">2015</option>
-              </select>
-            </td>
-            <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>Board</td>
-            <td>:</td>
-            <td>
-              <select name="board" class="textfield" id="board">
-                <option value="" selected>Select One</option>
-                <option value="barisal">Barisal</option>
-                <option value="chittagong">Chittagong</option>
-                <option value="comilla">Comilla</option>
-                <option value="dhaka">Dhaka</option>
-                <option value="dinajpur">Dinajpur</option>
-                <option value="jessore">Jessore</option>
-                <option value="mymensingh">Mymensingh</option>
-                <option value="rajshahi">Rajshahi</option>
-                <option value="sylhet">Sylhet</option>
-                <option value="madrasah">Madrasah</option>
-                <option value="tec">Technical</option>
-                <option value="dibs">DIBS(Dhaka)</option>
-              </select>
-            </td>
-            <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>Roll</td>
-            <td>:</td>
-            <td>
-              <input name="roll" type="text" class="textfield" id="roll" maxlength="6" onkeypress="return onlyNumbers(event)">
-            </td>
-            <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>Reg: No</td>
-            <td>:</td>
-            <td>
-              <input name="reg" type="text" class="textfield" id="reg" maxlength="10" onkeypress="return onlyNumbers(event)">
-            </td>
-            <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td id="math_question"></td>
-            <td>=</td>
-            <td>
-              <input name="value_s" type="text" class="textfield" id="value_s" maxlength="4" onkeypress="return onlyNumbers(event)">
-            </td>
-            <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>
-              <input type="reset" class="button" value="Reset" onclick="generateMath()">
-              <input type="submit" class="button" value="Submit">
-            </td>
-            <td>&nbsp;</td>
-          </tr>
-        </table>
-      </fieldset>
-    </form>
+    <div class="nav">
+      <a href="http://www.educationboardresults.gov.bd/" class="links02" target="_blank">Direct Official Portal</a>
+    </div>
+    <div class="iframe-container">
+      <iframe src="http://www.educationboardresults.gov.bd/" title="Official Result Form with Captcha"></iframe>
+    </div>
+    <div class="fallback" id="fallback">
+      <p>If the portal doesn't load, <a href="http://www.educationboardresults.gov.bd/" target="_blank">click here to access the official site directly</a> for your results and captcha.</p>
+    </div>
     <div class="footer">
-      &copy;2005-2025 Ministry of Education, All rights reserved. | Powered by
-      <img src="https://via.placeholder.com/83x44?text=Powered" alt="Powered By">
+      &copy;3025 Galactic Education Nexus, All Rights Reserved. | Powered by Official Education Systems
+      <img src="https://via.placeholder.com/83x44?text=Nexus" alt="Nexus Logo">
     </div>
   </div>
 
   <script>
-    // Dynamic Math Captcha
-    let correctAnswer;
-    function generateMath() {
-      const num1 = Math.floor(Math.random() * 10) + 1;
-      const num2 = Math.floor(Math.random() * 10) + 1;
-      const operation = Math.random() > 0.5 ? '+' : '-';
-      let question, answer;
-      if (operation === '+') {
-        question = `${num1} + ${num2}`;
-        answer = num1 + num2;
-      } else {
-        question = `${Math.max(num1, num2)} - ${Math.min(num1, num2)}`;
-        answer = Math.max(num1, num2) - Math.min(num1, num2);
-      }
-      document.getElementById('math_question').innerText = question;
-      correctAnswer = answer;
-      document.getElementById('value_s').value = '';
-    }
-
-    // Form Validator
-    function app_form_validator(form) {
-      const answer = parseInt(document.getElementById('value_s').value);
-      if (isNaN(answer) || answer !== correctAnswer) {
-        alert('Incorrect math answer! Please try again.');
-        generateMath();
-        return false;
-      }
-      if (form.year.value === '' || form.board.value === '' || form.roll.value === '' || form.reg.value === '') {
-        alert('Please fill all required fields.');
-        return false;
-      }
-      return true;
-    }
-
-    // Restrict to numbers only
-    function onlyNumbers(event) {
-      const char = String.fromCharCode(event.which || event.keyCode);
-      if (!/[0-9]/.test(char)) {
-        event.preventDefault();
-        return false;
-      }
-      return true;
-    }
-
-    // Initialize captcha on load
-    window.onload = generateMath;
+    // Check if iframe loads successfully; show fallback if not
+    window.onload = function() {
+      const iframe = document.querySelector('iframe');
+      const fallback = document.getElementById('fallback');
+      iframe.onload = function() {
+        // Loaded successfully
+        fallback.style.display = 'none';
+      };
+      iframe.onerror = function() {
+        // Failed to load (e.g., blocked or down)
+        fallback.style.display = 'block';
+        iframe.style.display = 'none';
+      };
+    };
   </script>
 </body>
-    </html>
+</html>
