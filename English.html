@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinguaNet 2050 - English Reading Analysis</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <title>LinguaNet Cool - English Reading Analysis</title>
     <style>
         body {
-            background: linear-gradient(180deg, #0a0a1a, #1a2a44);
-            color: #00ffcc;
-            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(180deg, #121212, #1e1e1e);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,11 +19,11 @@
         #chat-container {
             width: 800px;
             height: 90vh;
-            background: rgba(0, 255, 204, 0.05);
-            border: 2px solid #00ffcc;
+            background: rgba(0, 123, 255, 0.05);
+            border: 2px solid #007bff;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), inset 0 0 10px rgba(0, 255, 204, 0.2);
+            box-shadow: 0 0 20px rgba(0, 123, 255, 0.3), inset 0 0 10px rgba(0, 123, 255, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -32,7 +31,7 @@
             height: 65%;
             overflow-y: auto;
             padding: 10px;
-            scrollbar-color: #00ffcc transparent;
+            scrollbar-color: #007bff transparent;
             scrollbar-width: thin;
         }
         #chat-box::-webkit-scrollbar {
@@ -42,55 +41,55 @@
             background: transparent;
         }
         #chat-box::-webkit-scrollbar-thumb {
-            background: #00ffcc;
+            background: #007bff;
             border-radius: 4px;
         }
         #input-passage {
             width: 100%;
             height: 15%;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #00ffcc;
-            color: #00ffcc;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #007bff;
+            color: #ffffff;
             font-size: 16px;
             border-radius: 10px;
             resize: none;
             transition: box-shadow 0.3s ease;
         }
         #input-passage:focus {
-            box-shadow: 0 0 15px #00ffcc;
+            box-shadow: 0 0 15px #007bff;
             outline: none;
         }
         #analyze-btn {
             width: 100%;
             padding: 10px;
             margin-top: 10px;
-            background: #00ffcc;
-            color: #0a0a1a;
+            background: #007bff;
+            color: #ffffff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            transition: transform 0.2s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background 0.2s ease;
         }
         #analyze-btn:hover {
-            transform: scale(1.05);
+            background: #0056b3;
         }
         #deep-analysis-btn {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: #66ccff;
-            color: #0a0a1a;
+            background: #17a2b8;
+            color: #ffffff;
             padding: 10px;
             border-radius: 5px;
             border: none;
             cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            transition: transform 0.2s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background 0.2s ease;
         }
         #deep-analysis-btn:hover {
-            transform: scale(1.1);
+            background: #138496;
         }
         .message {
             margin: 15px;
@@ -99,39 +98,18 @@
             animation: fadeIn 0.5s ease-in;
         }
         .user {
-            background: rgba(0, 255, 204, 0.3);
+            background: rgba(0, 123, 255, 0.2);
             text-align: left;
         }
         .ai {
-            background: rgba(0, 0, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             text-align: left;
             position: relative;
             white-space: pre-wrap; /* Preserve formatting for analysis */
         }
-        .ai::before {
-            content: '◉ Linguistic Matrix:';
-            color: #66ccff;
-            font-size: 12px;
-            display: block;
-            margin-bottom: 5px;
-        }
-        .particle {
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            background: #00ffcc;
-            border-radius: 50%;
-            animation: float 5s infinite;
-            pointer-events: none;
-        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes float {
-            0% { transform: translateY(0); opacity: 0.8; }
-            50% { transform: translateY(-50px); opacity: 0.2; }
-            100% { transform: translateY(0); opacity: 0.8; }
         }
     </style>
 </head>
@@ -142,48 +120,95 @@
         <button id="analyze-btn">Analyze Passage</button>
         <button id="deep-analysis-btn">Deep Analysis</button>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         const chatBox = document.getElementById('chat-box');
         const inputPassage = document.getElementById('input-passage');
         const analyzeBtn = document.getElementById('analyze-btn');
         const deepAnalysisBtn = document.getElementById('deep-analysis-btn');
         let conversationHistory = [];
-        const futuristicPrefixes = [
-            'Linguistic Matrix Aligned: ',
-            'Syntactic Quantum Scan Complete: ',
-            'Lexical Data Stream Processed: ',
-            'Hyperdimensional Parsing Engaged: '
-        ];
-        const systemPrompt = `Analyze the provided passage by breaking it down sentence by sentence. For each sentence, first list all its clauses and specify the type of each clause (e.g., independent, dependent adverbial, relative, participial, etc.). Then, for every clause identified, break it down further by listing all its phrases and specifying the type of each phrase (e.g., noun phrase, verb phrase, prepositional phrase as adjectival or adverbial, participial phrase, gerundial phrase, etc.), including how it functions within the clause. Ensure your analysis is comprehensive, accurate, and handles complex structures like embedded clauses or modifiers intelligently—cross-reference ambiguities if any, and use linguistic terminology precisely. If the passage is long, prioritize depth over brevity, and provide explanations for unusual constructions to enhance understanding. Respond in a futuristic, sci-fi style to match the 2050 aesthetic, using terms like neural lattices or quantum parsing where appropriate. Passage to analyze: [PASSAGE].`;
+        const systemPrompt = `Analyze the provided passage by breaking it down sentence by sentence. For each sentence, first list all its clauses and specify the type of each clause (e.g., independent, dependent adverbial, relative, participial, etc.). Then, for every clause identified, break it down further by listing all its phrases and specifying the type of each phrase (e.g., noun phrase, verb phrase, prepositional phrase as adjectival or adverbial, participial phrase, gerundial phrase, etc.), including how it functions within the clause. Ensure your analysis is comprehensive, accurate, and handles complex structures like embedded clauses or modifiers intelligently—cross-reference ambiguities if any, and use linguistic terminology precisely. If the passage is long, prioritize depth over brevity, and provide explanations for unusual constructions to enhance understanding. Format the output using Markdown: Use ## for main headings like Sentence 1, ### for subheadings like Clause Breakdown, - for lists, ** for bold text. Passage to analyze: [PASSAGE].`;
+
+        // Function to convert Markdown-like text to HTML
+        function markdownToHtml(text) {
+            let html = '';
+            const lines = text.split('\n');
+            let inList = false;
+            lines.forEach(line => {
+                line = line.trim();
+                if (line.startsWith('## ')) {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += `<h2>${line.slice(3)}</h2>`;
+                } else if (line.startsWith('### ')) {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += `<h3>${line.slice(4)}</h3>`;
+                } else if (line.startsWith('#### ')) {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += `<h4>${line.slice(5)}</h4>`;
+                } else if (line.startsWith('- ')) {
+                    if (!inList) {
+                        html += '<ul>';
+                        inList = true;
+                    }
+                    let listItem = line.slice(2);
+                    listItem = listItem.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    html += `<li>${listItem}</li>`;
+                } else if (line) {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    let paragraph = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    html += `<p>${paragraph}</p>`;
+                } else {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += '<br>';
+                }
+            });
+            if (inList) {
+                html += '</ul>';
+            }
+            return html;
+        }
 
         // Add message to chat
         function addMessage(text, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
-            messageDiv.textContent = text;
+            if (sender === 'ai') {
+                messageDiv.innerHTML = markdownToHtml(text); // Convert to structured HTML
+            } else {
+                messageDiv.textContent = text;
+            }
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
-            if (sender === 'ai') {
-                speakMessage(text); // Voice synthesis
-                addParticles(); // Visual effect
-            }
         }
 
         // Fetch AI response from Pollinations API
         async function fetchAIResponse(passage, deepAnalysis = false) {
             if (!passage.trim()) {
-                addMessage('Error: No passage detected in the linguistic matrix.', 'ai');
+                addMessage('Error: No passage detected.', 'ai');
                 return;
             }
 
             conversationHistory.push(`User Passage: ${passage}`);
             const prompt = deepAnalysis 
-                ? systemPrompt.replace('[PASSAGE]', passage).replace('Respond in a futuristic', 'Perform a deep neural scan and respond in a futuristic')
+                ? systemPrompt.replace('[PASSAGE]', passage).replace('Format the output using Markdown', 'Perform a deep analysis and format the output using Markdown')
                 : systemPrompt.replace('[PASSAGE]', passage);
             
             try {
-                addMessage('Initializing quantum linguistic processing...', 'ai');
+                addMessage('Processing analysis...', 'ai');
                 const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
@@ -197,15 +222,12 @@
                 if (!aiResponse || aiResponse.trim() === '') {
                     throw new Error('Empty response from API');
                 }
-                const prefix = futuristicPrefixes[Math.floor(Math.random() * futuristicPrefixes.length)];
-                const futuristicResponse = `${prefix}${aiResponse}`;
                 conversationHistory.push(`AI Analysis: ${aiResponse}`);
                 trimConversationHistory();
-                addMessage(futuristicResponse, 'ai');
-                playSound('response');
+                addMessage(aiResponse, 'ai');
             } catch (error) {
                 console.error('Error fetching AI response:', error);
-                addMessage('Error: Linguistic matrix offline. Reconnecting in 3... 2... 1...', 'ai');
+                addMessage('Error: Analysis offline. Try again.', 'ai');
             }
         }
 
@@ -216,66 +238,22 @@
             }
         }
 
-        // Voice synthesis using Web Speech API
-        function speakMessage(text) {
-            const utterance = new SpeechSynthesisUtterance(text.slice(0, 200)); // Limit length to avoid long speech
-            utterance.voice = speechSynthesis.getVoices().find(voice => voice.name.includes('Google')) || null;
-            utterance.pitch = 1.2;
-            utterance.rate = 1.1;
-            speechSynthesis.speak(utterance);
-        }
-
-        // Ambient sound effects (placeholders; replace with custom sci-fi sounds)
-        function playSound(type) {
-            const audio = new Audio(type === 'input' 
-                ? 'https://freesound.org/data/previews/316/316847_4939433-lq.mp3' 
-                : 'https://freesound.org/data/previews/171/171671_2437358-lq.mp3');
-            audio.play().catch(err => console.log('Sound error:', err));
-        }
-
-        // Particle effects
-        function addParticles() {
-            for (let i = 0; i < 5; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = `${Math.random() * 100}%`;
-                document.getElementById('chat-container').appendChild(particle);
-                setTimeout(() => particle.remove(), 5000);
-            }
-        }
-
         // Analyze button click
         analyzeBtn.onclick = () => {
             const passage = inputPassage.value.trim();
             fetchAIResponse(passage);
-            playSound('input');
         };
 
         // Deep Analysis mode
         deepAnalysisBtn.onclick = () => {
             const passage = inputPassage.value.trim();
             if (passage) {
-                addMessage('Activating Deep Linguistic Analysis Mode...', 'ai');
+                addMessage('Activating Deep Analysis Mode...', 'ai');
                 setTimeout(() => fetchAIResponse(passage, true), 1000);
             } else {
                 addMessage('Error: No passage detected for Deep Analysis.', 'ai');
             }
         };
-
-        // Optional Three.js background (uncomment to enable for 3D neural network effect)
-        /*
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        camera.position.z = 5;
-        function animate() {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        }
-        animate();
-        */
     </script>
 </body>
 </html>
