@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Audio Call WebApp</title>
+    <title>Audio Broadcast WebApp</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,233 +18,138 @@
             font-size: 16px;
             cursor: pointer;
         }
-        #status {
-            margin: 20px 0;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f0f0f0;
-        }
-        audio {
+        table {
             width: 100%;
-            margin-top: 10px;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        #media-container {
+            margin-top: 20px;
+        }
+        audio, video {
+            width: 100%;
+            max-width: 400px;
         }
     </style>
 </head>
 <body>
-    <h1>Private Audio Call with Brother</h1>
-    <p>This is a simple peer-to-peer audio call using WebRTC. No servers or databases are hosted by you—signaling uses Firebase's free Realtime Database (you'll need to set up a free Firebase project).</p>
+    <h1>Real-Time Audio Broadcast</h1>
+    <p>This webapp allows you to broadcast your audio in real-time to anyone visiting the same page. Use the button below to start broadcasting (grant mic access). Viewers will see a "Join" button appear and can click to listen.</p>
+    <p>For private use, change the room name in the code to something unique and share the page URL with your brother.</p>
     
-    <div>
-        <label for="roomId">Room ID (share the same ID with your brother):</label>
-        <input type="text" id="roomId" placeholder="e.g., family-call-123" value="family-call-123">
-    </div>
+    <button id="setup-new-broadcast" disabled>Start Audio Broadcast</button>
     
-    <button id="startBtn">Start Call</button>
-    <button id="hangupBtn" disabled>Hang Up</button>
+    <table id="rooms-list"></table>
     
-    <div id="status">Status: Ready to connect</div>
+    <div id="media-container"></div>
     
-    <audio id="remoteAudio" autoplay></audio>
+    <!-- WebRTC Broadcast Library (CDN from WebRTC-Experiment) -->
+    <script src="https://cdn.webrtc-experiment.com/broadcast.js"></script>
     
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-        import { getDatabase, ref, onValue, set, push, onChildAdded } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    <!-- Socket.IO for signaling (public server) -->
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    
+    <script>
+        // Hardcode to audio only
+        var isAudio = true;
+        var shared = 'audio';
+        var constraints = { audio: true, video: false };
 
-        // TODO: Replace with your Firebase config (get from Firebase Console)
-        const firebaseConfig = {
-            // Example (replace with yours):
-            // apiKey: "your-api-key",
-            // authDomain: "your-project.firebaseapp.com",
-            // databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-            // projectId: "your-project-id",
-            // storageBucket: "your-project.appspot.com",
-            // messagingSenderId: "123456789",
-            // appId: "your-app-id"
-        };
+        var mediaContainer = document.getElementById('media-container') || document.body;
+        var roomsList = document.getElementById('rooms-list');
+        var btnSetupNewBroadcast = document.getElementById('setup-new-broadcast');
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        // Config for broadcast
+        var config = {
+            openSocket: function(config) {
+                var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com/';
+                var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+                var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-        // WebRTC setup
-        const configuration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        };
-
-        let localStream;
-        let remoteStream;
-        let peerConnection;
-        let roomId;
-        let isInitiator = false;
-
-        const startBtn = document.getElementById('startBtn');
-        const hangupBtn = document.getElementById('hangupBtn');
-        const status = document.getElementById('status');
-        const remoteAudio = document.getElementById('remoteAudio');
-        const roomInput = document.getElementById('roomId');
-
-        // Update status
-        function updateStatus(message) {
-            status.textContent = `Status: ${message}`;
-        }
-
-        // Get local audio stream
-        async function getLocalStream() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                return localStream;
-            } catch (err) {
-                updateStatus('Error accessing microphone: ' + err.message);
-                throw err;
-            }
-        }
-
-        // Create or join room
-        function setupRoom() {
-            roomId = roomInput.value.trim();
-            if (!roomId) {
-                updateStatus('Please enter a Room ID');
-                return;
-            }
-
-            const roomRef = ref(db, `rooms/${roomId}`);
-            const offersRef = ref(db, `rooms/${roomId}/offers`);
-            const answersRef = ref(db, `rooms/${roomId}/answers`);
-            const candidatesRef = ref(db, `rooms/${roomId}/candidates`);
-
-            // Listen for offers (for callee)
-            onValue(offersRef, (snapshot) => {
-                const offer = snapshot.val();
-                if (offer && !peerConnection) {
-                    updateStatus('Received offer, connecting...');
-                    handleOffer(offer);
-                }
-            });
-
-            // Listen for answers (for caller)
-            onValue(answersRef, (snapshot) => {
-                const answer = snapshot.val();
-                if (answer && peerConnection && peerConnection.remoteDescription) {
-                    peerConnection.setRemoteDescription(answer);
-                }
-            });
-
-            // Listen for ICE candidates
-            onChildAdded(candidatesRef, (snapshot) => {
-                const candidate = snapshot.val();
-                if (candidate && peerConnection) {
-                    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-                }
-            });
-
-            // Check if room has an existing offer (to decide initiator)
-            onValue(offersRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    isInitiator = false; // Join as callee
-                } else {
-                    isInitiator = true; // Create offer as initiator
-                }
-            });
-        }
-
-        // Handle incoming offer
-        async function handleOffer(offer) {
-            await getLocalStream();
-            peerConnection = new RTCPeerConnection(configuration);
-            peerConnection.addEventListener('track', (event) => {
-                remoteStream = event.streams[0];
-                remoteAudio.srcObject = remoteStream;
-                updateStatus('Connected! Talking...');
-            });
-
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-            peerConnection.setRemoteDescription(offer);
-            const answer = await peerConnection.createAnswer();
-            peerConnection.setLocalDescription(answer);
-
-            // Send answer
-            const answersRef = ref(db, `rooms/${roomId}/answers`);
-            set(answersRef, answer);
-
-            // Handle ICE candidates
-            peerConnection.addEventListener('icecandidate', (event) => {
-                if (event.candidate) {
-                    const candidatesRef = ref(db, `rooms/${roomId}/candidates`);
-                    push(candidatesRef, event.candidate);
-                }
-            });
-        }
-
-        // Start call as initiator
-        async function startCall() {
-            setupRoom();
-            if (!isInitiator) {
-                updateStatus('Waiting for the other person to start...');
-                return;
-            }
-
-            try {
-                await getLocalStream();
-                peerConnection = new RTCPeerConnection(configuration);
-                peerConnection.addEventListener('track', (event) => {
-                    remoteStream = event.streams[0];
-                    remoteAudio.srcObject = remoteStream;
-                    updateStatus('Connected! Talking...');
+                io.connect(SIGNALING_SERVER).emit('new-channel', {
+                    channel: channel,
+                    sender: sender
                 });
 
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-                const offer = await peerConnection.createOffer();
-                peerConnection.setLocalDescription(offer);
-
-                // Send offer
-                const offersRef = ref(db, `rooms/${roomId}/offers`);
-                set(offersRef, offer);
-
-                // Handle ICE candidates
-                peerConnection.addEventListener('icecandidate', (event) => {
-                    if (event.candidate) {
-                        const candidatesRef = ref(db, `rooms/${roomId}/candidates`);
-                        push(candidatesRef, event.candidate);
-                    }
+                var socket = io.connect(SIGNALING_SERVER + channel);
+                socket.channel = channel;
+                socket.on('connect', function () {
+                    if (config.callback) config.callback(socket);
                 });
 
-                startBtn.disabled = true;
-                hangupBtn.disabled = false;
-                updateStatus('Offer sent, waiting for connection...');
-            } catch (err) {
-                updateStatus('Error starting call: ' + err.message);
+                socket.send = function (message) {
+                    socket.emit('message', {
+                        sender: sender,
+                        data: message
+                    });
+                };
+
+                socket.on('message', config.onmessage);
+            },
+            onRemoteStream: function(htmlElement) {
+                htmlElement.muted = false; // For audio only, but using video element for compatibility
+                htmlElement.volume = 1;
+                mediaContainer.appendChild(htmlElement);
+            },
+            onRoomFound: function(room) {
+                var alreadyExist = document.querySelector('button[data-broadcaster="' + room.broadcaster + '"]');
+                if (alreadyExist) return;
+
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td><strong>' + room.roomName + '</strong> is broadcasting audio!</td>' +
+                               '<td><button class="join">Join Broadcast</button></td>';
+                roomsList.appendChild(tr);
+
+                var joinRoomButton = tr.querySelector('.join');
+                joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
+                joinRoomButton.setAttribute('data-roomToken', room.roomToken);
+                joinRoomButton.onclick = function() {
+                    this.disabled = true;
+                    var broadcaster = this.getAttribute('data-broadcaster');
+                    var roomToken = this.getAttribute('data-roomToken');
+                    broadcastUI.joinRoom({
+                        roomToken: roomToken,
+                        joinUser: broadcaster
+                    });
+                };
+            },
+            onNewParticipant: function(numberOfViewers) {
+                document.title = 'Listeners: ' + numberOfViewers;
+                alert(numberOfViewers + ' listeners connected!');
+            },
+            onReady: function() {
+                console.log('Socket is ready');
+                btnSetupNewBroadcast.disabled = false;
             }
+        };
+
+        var broadcastUI = broadcast(config);
+
+        // Start broadcast button
+        btnSetupNewBroadcast.onclick = function() {
+            this.disabled = true;
+            captureUserMedia(function() {
+                broadcastUI.createRoom({
+                    roomName: 'family-audio-broadcast', // Change this for private room
+                    isAudio: isAudio
+                });
+            });
+        };
+
+        // Capture media
+        function captureUserMedia(callback) {
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    callback && callback();
+                })
+                .catch(function(error) {
+                    alert('Unable to access microphone: ' + error.message);
+                });
         }
-
-        // Hang up
-        function hangup() {
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            remoteAudio.srcObject = null;
-            startBtn.disabled = false;
-            hangupBtn.disabled = true;
-            updateStatus('Call ended');
-        }
-
-        // Event listeners
-        startBtn.addEventListener('click', startCall);
-        hangupBtn.addEventListener('click', hangup);
-
-        // Clean up on page unload
-        window.addEventListener('beforeunload', () => {
-            hangup();
-        });
     </script>
 </body>
 </html>
