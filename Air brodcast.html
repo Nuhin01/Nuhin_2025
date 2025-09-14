@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Audio Passthrough WebApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        select, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #status {
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Singing Audio Passthrough</h1>
+    <p>Select your input device (e.g., Bluetooth headset microphone), then start the audio.</p>
+    <label for="inputDevices">Input Device:</label>
+    <select id="inputDevices"></select>
+    <button id="startBtn">Start Audio</button>
+    <button id="stopBtn" disabled>Stop Audio</button>
+    <div id="status">Status: Ready</div>
+
+    <script>
+        let audioContext;
+        let sourceNode;
+        let stream;
+        const inputDevicesSelect = document.getElementById('inputDevices');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+
+        // Function to populate input devices
+        async function populateDevices() {
+            try {
+                // Request permission to access media devices
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioInputs = devices.filter(device => device.kind === 'audioinput');
+                
+                inputDevicesSelect.innerHTML = '';
+                audioInputs.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Microphone ${audioInputs.indexOf(device) + 1}`;
+                    inputDevicesSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error enumerating devices:', error);
+                status.textContent = 'Error: Could not access audio devices.';
+            }
+        }
+
+        // Start audio passthrough
+        async function startAudio() {
+            const deviceId = inputDevicesSelect.value;
+            if (!deviceId) {
+                status.textContent = 'Please select an input device.';
+                return;
+            }
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    audio: { deviceId: { exact: deviceId } }
+                });
+
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                sourceNode = audioContext.createMediaStreamSource(stream);
+                sourceNode.connect(audioContext.destination);
+
+                status.textContent = 'Status: Audio passthrough started. Sing into your mic!';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            } catch (error) {
+                console.error('Error starting audio:', error);
+                status.textContent = 'Error: Could not start audio.';
+            }
+        }
+
+        // Stop audio
+        function stopAudio() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+            status.textContent = 'Status: Audio stopped.';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startAudio);
+        stopBtn.addEventListener('click', stopAudio);
+
+        // Initialize devices on load
+        window.addEventListener('load', populateDevices);
+    </script>
+</body>
+  </html>
