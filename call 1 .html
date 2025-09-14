@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Audio Call WebApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Private Audio Call with Brother</h1>
+    <p>This is a simple peer-to-peer audio call using WebRTC. No servers or databases are hosted by you—signaling uses Firebase's free Realtime Database (you'll need to set up a free Firebase project).</p>
+    
+    <div>
+        <label for="roomId">Room ID (share the same ID with your brother):</label>
+        <input type="text" id="roomId" placeholder="e.g., family-call-123" value="family-call-123">
+    </div>
+    
+    <button id="startBtn">Start Call</button>
+    <button id="hangupBtn" disabled>Hang Up</button>
+    
+    <div id="status">Status: Ready to connect</div>
+    
+    <audio id="remoteAudio" autoplay></audio>
+    
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+        import { getDatabase, ref, onValue, set, push, onChildAdded } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+
+        // TODO: Replace with your Firebase config (get from Firebase Console)
+        const firebaseConfig = {
+            // Example (replace with yours):
+            // apiKey: "your-api-key",
+            // authDomain: "your-project.firebaseapp.com",
+            // databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+            // projectId: "your-project-id",
+            // storageBucket: "your-project.appspot.com",
+            // messagingSenderId: "123456789",
+            // appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // WebRTC setup
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        let localStream;
+        let remoteStream;
+        let peerConnection;
+        let roomId;
+        let isInitiator = false;
+
+        const startBtn = document.getElementById('startBtn');
+        const hangupBtn = document.getElementById('hangupBtn');
+        const status = document.getElementById('status');
+        const remoteAudio = document.getElementById('remoteAudio');
+        const roomInput = document.getElementById('roomId');
+
+        // Update status
+        function updateStatus(message) {
+            status.textContent = `Status: ${message}`;
+        }
+
+        // Get local audio stream
+        async function getLocalStream() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                return localStream;
+            } catch (err) {
+                updateStatus('Error accessing microphone: ' + err.message);
+                throw err;
+            }
+        }
+
+        // Create or join room
+        function setupRoom() {
+            roomId = roomInput.value.trim();
+            if (!roomId) {
+                updateStatus('Please enter a Room ID');
+                return;
+            }
+
+            const roomRef = ref(db, `rooms/${roomId}`);
+            const offersRef = ref(db, `rooms/${roomId}/offers`);
+            const answersRef = ref(db, `rooms/${roomId}/answers`);
+            const candidatesRef = ref(db, `rooms/${roomId}/candidates`);
+
+            // Listen for offers (for callee)
+            onValue(offersRef, (snapshot) => {
+                const offer = snapshot.val();
+                if (offer && !peerConnection) {
+                    updateStatus('Received offer, connecting...');
+                    handleOffer(offer);
+                }
+            });
+
+            // Listen for answers (for caller)
+            onValue(answersRef, (snapshot) => {
+                const answer = snapshot.val();
+                if (answer && peerConnection && peerConnection.remoteDescription) {
+                    peerConnection.setRemoteDescription(answer);
+                }
+            });
+
+            // Listen for ICE candidates
+            onChildAdded(candidatesRef, (snapshot) => {
+                const candidate = snapshot.val();
+                if (candidate && peerConnection) {
+                    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+            });
+
+            // Check if room has an existing offer (to decide initiator)
+            onValue(offersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    isInitiator = false; // Join as callee
+                } else {
+                    isInitiator = true; // Create offer as initiator
+                }
+            });
+        }
+
+        // Handle incoming offer
+        async function handleOffer(offer) {
+            await getLocalStream();
+            peerConnection = new RTCPeerConnection(configuration);
+            peerConnection.addEventListener('track', (event) => {
+                remoteStream = event.streams[0];
+                remoteAudio.srcObject = remoteStream;
+                updateStatus('Connected! Talking...');
+            });
+
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            peerConnection.setRemoteDescription(offer);
+            const answer = await peerConnection.createAnswer();
+            peerConnection.setLocalDescription(answer);
+
+            // Send answer
+            const answersRef = ref(db, `rooms/${roomId}/answers`);
+            set(answersRef, answer);
+
+            // Handle ICE candidates
+            peerConnection.addEventListener('icecandidate', (event) => {
+                if (event.candidate) {
+                    const candidatesRef = ref(db, `rooms/${roomId}/candidates`);
+                    push(candidatesRef, event.candidate);
+                }
+            });
+        }
+
+        // Start call as initiator
+        async function startCall() {
+            setupRoom();
+            if (!isInitiator) {
+                updateStatus('Waiting for the other person to start...');
+                return;
+            }
+
+            try {
+                await getLocalStream();
+                peerConnection = new RTCPeerConnection(configuration);
+                peerConnection.addEventListener('track', (event) => {
+                    remoteStream = event.streams[0];
+                    remoteAudio.srcObject = remoteStream;
+                    updateStatus('Connected! Talking...');
+                });
+
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+                const offer = await peerConnection.createOffer();
+                peerConnection.setLocalDescription(offer);
+
+                // Send offer
+                const offersRef = ref(db, `rooms/${roomId}/offers`);
+                set(offersRef, offer);
+
+                // Handle ICE candidates
+                peerConnection.addEventListener('icecandidate', (event) => {
+                    if (event.candidate) {
+                        const candidatesRef = ref(db, `rooms/${roomId}/candidates`);
+                        push(candidatesRef, event.candidate);
+                    }
+                });
+
+                startBtn.disabled = true;
+                hangupBtn.disabled = false;
+                updateStatus('Offer sent, waiting for connection...');
+            } catch (err) {
+                updateStatus('Error starting call: ' + err.message);
+            }
+        }
+
+        // Hang up
+        function hangup() {
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            remoteAudio.srcObject = null;
+            startBtn.disabled = false;
+            hangupBtn.disabled = true;
+            updateStatus('Call ended');
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startCall);
+        hangupBtn.addEventListener('click', hangup);
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            hangup();
+        });
+    </script>
+</body>
+</html>
