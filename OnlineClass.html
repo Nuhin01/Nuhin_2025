@@ -1,53 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Theme Articles Page</title>
+    <title>Online Articles Page</title>
     <style>
-        /* Base dark theme styles */
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #0f1419; /* Default to theme-3 */
-            color: #f0f0f0;
-            transition: background-color 0.3s ease, color 0.3s ease, line-height 0.3s ease, font-family 0.3s ease;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-            padding: 0 40px; /* Space for icons */
-        }
-
-        .tts-icon {
-            position: absolute;
-            top: 0;
-            left: 0;
-            font-size: 24px;
-            cursor: pointer;
-            color: #cccccc;
-            z-index: 1000;
-        }
-
-        .tts-icon:hover {
-            color: #ffffff;
-        }
-
-        .tts-icon.playing {
-            color: #4CAF50;
-        }
-
+        /* Only styles for settings menu */
         .settings-icon {
             position: absolute;
             top: 0;
@@ -122,56 +80,11 @@
         .theme-btn.active, .lineheight-btn.active, .fontfamily-btn.active {
             background-color: #666;
         }
-
-        h1 {
-            color: #ffffff;
-            margin: 0;
-        }
-
-        article {
-            margin-bottom: 40px;
-        }
-
-        h2 {
-            color: #cccccc;
-        }
-
-        p {
-            font-size: 16px; /* Base font size */
-            transition: font-size 0.3s ease;
-            margin-bottom: 1em;
-        }
-
-        /* Theme classes for remaining dark backgrounds */
-        body.theme-3 {
-            background-color: #0f1419;
-        }
-
-        body.theme-4 {
-            background-color: #1e1e2e;
-        }
-
-        /* Ensure readability with themes */
-        body.theme-3 { color: #f0f0f0; }
-        body.theme-4 { color: #cdd6f4; }
-
-        h1 { color: #ffffff; }
-        h2 { color: #cccccc; }
-
-        /* Line height classes */
-        body.lineheight-normal { line-height: 1.6; }
-        body.lineheight-wide { line-height: 1.8; }
-        body.lineheight-extra { line-height: 2.0; }
-
-        /* Font family classes */
-        body.fontfamily-sans { font-family: Arial, sans-serif; }
-        body.fontfamily-serif { font-family: Georgia, serif; }
     </style>
 </head>
-<body class="theme-3 lineheight-normal fontfamily-sans">
+<body>
     <div class="container">
         <header>
-            <div class="tts-icon" id="ttsIcon" onclick="toggleTTS()" title="Text-to-Speech">🔊</div>
             <h1>Online Articles</h1>
             <div class="settings-icon" onclick="toggleSettings()" title="Settings">⚙️</div>
             <div class="settings-menu" id="settingsMenu">
@@ -207,50 +120,20 @@
             </div>
         </header>
 
-        <div>
-<span style="color:gray;" title="Adverbial phrase">Around </span><span style="color:green;" title="Noun phrase">25 million elms</span><span style="color:cyan;" title="Participial phrase">, accounting for 90% of all elm trees</span><span style="color:yellow;" title="Prepositional phrase"> in the UK</span><span style="color:red;" title="Independent clause">, died</span><span style="color:yellow;" title="Prepositional phrase"> during the 1960s and ’70s</span><span style="color:yellow;" title="Prepositional phrase"> of Dutch elm disease</span>.<br>
-<span style="color:yellow;" title="Prepositional phrase">In the aftermath</span><span style="color:red;" title="Independent clause">, <span style="color:green;" title="Noun phrase">the elm</span><span style="color:cyan;" title="Participial phrase">, once so dominant</span><span style="color:yellow;" title="Prepositional phrase"> in the British landscape</span>, <span style="color:red;" title="Verb phrase">was largely forgotten</span></span>.<br>
-<span style="color:gray;" title="Adverbial phrase">However</span><span style="color:red;" title="Independent clause">, <span style="color:gray;" title="Adverbial phrase">there’s now hope</span> <span style="color:green;" title="Noun clause" title="Noun clause">the elm may be reintroduced</span> <span style="color:yellow;" title="Prepositional phrase">to the countryside</span> <span style="color:yellow;" title="Prepositional phrase">of central and southern England</span></span>.<br>
-<span style="color:green;" title="Noun phrase">Any reintroduction</span> <span style="color:red;" title="Independent clause">will start</span> <span style="color:yellow;" title="Prepositional phrase">from a very low base</span>.<br>
-<span style="color:magenta;" title="Gerundial phrase">‘The impact</span> <span style="color:yellow;" title="Prepositional phrase">of the disease</span> <span style="color:red;" title="Independent clause">is difficult to picture</span> <span style="color:red;" title="Dependent clause">if you hadn’t seen</span> <span style="color:green;" title="Noun clause">what was there before</span>,’ <span style="color:red;" title="Verb phrase">says</span> <span style="color:green;" title="Noun phrase">Matt Elliot</span> <span style="color:yellow;" title="Prepositional phrase">of the Woodland Trust</span>.<br>
-<span style="color:magenta;" title="Gerundial phrase">‘You look</span> <span style="color:yellow;" title="Prepositional phrase">at old photographs</span> <span style="color:yellow;" title="Prepositional phrase">from the 1960s</span> <span style="color:red;" title="Independent clause">and it’s only then</span> <span style="color:red;" title="Dependent clause">that you realise</span> <span style="color:green;" title="Noun phrase">the impact [elms had]</span> ... <span style="color:green;" title="Noun phrase">They</span> <span style="color:red;" title="Verb phrase">were significant</span><span style="color:gray;" title="Adverbial phrase">, large trees</span> … <span style="color:gray;" title="Adverbial phrase">then</span> <span style="color:red;" title="Verb phrase">they were gone</span>.’<br>
-  </div>
+        <article>
+            <h2>Sample Article 1</h2>
+            <p>This is a sample paragraph for the articles page. You can add your content here.</p>
+            <p>Another paragraph to demonstrate text flow.</p>
+        </article>
+
+        <article>
+            <h2>Sample Article 2</h2>
+            <p>Here's more content.</p>
+            <p>End of sample. Feel free to extend this with real articles.</p>
+        </article>
     </div>
 
     <script>
-        // Script to prevent printing
-        window.print = function() {
-            alert('Printing is disabled on this webpage to protect content.');
-            return false;
-        };
-
-        // Additional prevention: Block right-click and inspect (optional, but enhances)
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => {
-            if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
-                e.preventDefault();
-                alert('Printing is disabled on this webpage.');
-            }
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-                alert('Developer tools are disabled.');
-            }
-        });
-
-        let currentFontSize = 16;
-        let isPlaying = false;
-        let synth;
-        let utterance;
-        let voices = [];
-
-        if ('speechSynthesis' in window) {
-            synth = window.speechSynthesis;
-            synth.addEventListener('voiceschanged', () => {
-                voices = synth.getVoices();
-            });
-            voices = synth.getVoices(); // Initial load (may be empty)
-        }
-
         function toggleSettings() {
             const menu = document.getElementById('settingsMenu');
             menu.classList.toggle('show');
@@ -276,11 +159,10 @@
         }
 
         function changeFontSize(delta) {
+            let currentFontSize = parseInt(getComputedStyle(document.documentElement).fontSize) || 16;
             currentFontSize += delta;
-            currentFontSize = Math.max(12, Math.min(24, currentFontSize)); // Limit between 12px and 24px
-            document.querySelectorAll('p, h1, h2').forEach(el => {
-                el.style.fontSize = currentFontSize + 'px';
-            });
+            currentFontSize = Math.max(12, Math.min(24, currentFontSize));
+            document.documentElement.style.fontSize = currentFontSize + 'px';
         }
 
         function changeLineHeight(height) {
@@ -302,73 +184,6 @@
             document.querySelectorAll('.fontfamily-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
-
-        function toggleTTS() {
-            if (!synth) {
-                alert('Text-to-Speech not supported in this browser.');
-                return;
-            }
-
-            // Ensure voices are loaded
-            if (voices.length === 0) {
-                voices = synth.getVoices();
-            }
-
-            const ttsIcon = document.getElementById('ttsIcon');
-
-            if (isPlaying) {
-                synth.cancel();
-                isPlaying = false;
-                ttsIcon.classList.remove('playing');
-                ttsIcon.textContent = '🔊';
-            } else {
-                // Collect only visible text from h2 and p elements
-                const visibleElements = document.querySelectorAll('h2, p');
-                const text = Array.from(visibleElements)
-                    .filter(el => {
-                        const style = window.getComputedStyle(el);
-                        return style.display !== 'none' && style.visibility !== 'hidden';
-                    })
-                    .map(el => el.textContent.trim())
-                    .filter(text => text.length > 0)
-                    .join(' ');
-
-                if (!text) {
-                    alert('No visible text to read.');
-                    return;
-                }
-
-                utterance = new SpeechSynthesisUtterance(text);
-                
-                // Select a realistic, cool female voice (prioritizing common female voices)
-                const femaleVoice = voices.find(voice => 
-                    voice.lang.startsWith('en-') && (
-                        voice.name.toLowerCase().includes('zira') ||
-                        voice.name.toLowerCase().includes('samantha') ||
-                        voice.name.toLowerCase().includes('victoria') ||
-                        voice.name.toLowerCase().includes('female') ||
-                        voice.name.includes('Google US English') || // Often female and realistic
-                        voice.name.includes('Microsoft Hazel') // Neural female if available
-                    )
-                ) || voices.find(voice => voice.lang.startsWith('en-')) || voices[0];
-
-                utterance.voice = femaleVoice;
-                utterance.rate = 0.85; // Slightly slower for a cool, relaxed pace
-                utterance.pitch = 1.1; // Slightly higher for a more engaging female tone
-                utterance.volume = 1;
-                
-                utterance.onend = () => {
-                    isPlaying = false;
-                    ttsIcon.classList.remove('playing');
-                    ttsIcon.textContent = '🔊';
-                };
-                
-                synth.speak(utterance);
-                isPlaying = true;
-                ttsIcon.classList.add('playing');
-                ttsIcon.textContent = '⏸️';
-            }
-        }
-    </script>
+    </style>
 </body>
-  </html>
+</html>
