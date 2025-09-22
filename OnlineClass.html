@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Articles Page</title>
+    <title>Dark Theme Articles Page</title>
     <style>
-        /* Only styles for settings menu */
+        /* Minimal styles only for settings menu */
         .settings-icon {
             position: absolute;
             top: 0;
@@ -122,18 +122,51 @@
 
         <article>
             <h2>Sample Article 1</h2>
-            <p>This is a sample paragraph for the articles page. You can add your content here.</p>
-            <p>Another paragraph to demonstrate text flow.</p>
+            <p>This is a sample paragraph for the articles page. You can add your content here. The dark theme ensures comfortable reading in low light conditions. New features include adjustable line height for better spacing and font family options for personal preference.</p>
+            <p>Another paragraph to demonstrate text flow. The background can be switched between two dark variants for user preference. Text-to-speech allows hands-free reading.</p>
         </article>
 
         <article>
             <h2>Sample Article 2</h2>
-            <p>Here's more content.</p>
-            <p>End of sample. Feel free to extend this with real articles.</p>
+            <p>Here's more content. Use the font size controls to adjust readability based on your needs. Line height adjustments reduce eye strain during long reads.</p>
+            <p>End of sample. Feel free to extend this with real articles. Serif fonts may feel more book-like for immersive reading.</p>
         </article>
     </div>
 
     <script>
+        // Script to prevent printing
+        window.print = function() {
+            alert('Printing is disabled on this webpage to protect content.');
+            return false;
+        };
+
+        // Additional prevention: Block right-click and inspect (optional, but enhances)
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                alert('Printing is disabled on this webpage.');
+            }
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+                alert('Developer tools are disabled.');
+            }
+        });
+
+        let currentFontSize = 16;
+        let isPlaying = false;
+        let synth;
+        let utterance;
+        let voices = [];
+
+        if ('speechSynthesis' in window) {
+            synth = window.speechSynthesis;
+            synth.addEventListener('voiceschanged', () => {
+                voices = synth.getVoices();
+            });
+            voices = synth.getVoices(); // Initial load (may be empty)
+        }
+
         function toggleSettings() {
             const menu = document.getElementById('settingsMenu');
             menu.classList.toggle('show');
@@ -159,10 +192,11 @@
         }
 
         function changeFontSize(delta) {
-            let currentFontSize = parseInt(getComputedStyle(document.documentElement).fontSize) || 16;
             currentFontSize += delta;
-            currentFontSize = Math.max(12, Math.min(24, currentFontSize));
-            document.documentElement.style.fontSize = currentFontSize + 'px';
+            currentFontSize = Math.max(12, Math.min(24, currentFontSize)); // Limit between 12px and 24px
+            document.querySelectorAll('p, h1, h2').forEach(el => {
+                el.style.fontSize = currentFontSize + 'px';
+            });
         }
 
         function changeLineHeight(height) {
@@ -184,6 +218,73 @@
             document.querySelectorAll('.fontfamily-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
-    </style>
+
+        function toggleTTS() {
+            if (!synth) {
+                alert('Text-to-Speech not supported in this browser.');
+                return;
+            }
+
+            // Ensure voices are loaded
+            if (voices.length === 0) {
+                voices = synth.getVoices();
+            }
+
+            const ttsIcon = document.getElementById('ttsIcon');
+
+            if (isPlaying) {
+                synth.cancel();
+                isPlaying = false;
+                ttsIcon.classList.remove('playing');
+                ttsIcon.textContent = '🔊';
+            } else {
+                // Collect only visible text from h2 and p elements
+                const visibleElements = document.querySelectorAll('h2, p');
+                const text = Array.from(visibleElements)
+                    .filter(el => {
+                        const style = window.getComputedStyle(el);
+                        return style.display !== 'none' && style.visibility !== 'hidden';
+                    })
+                    .map(el => el.textContent.trim())
+                    .filter(text => text.length > 0)
+                    .join(' ');
+
+                if (!text) {
+                    alert('No visible text to read.');
+                    return;
+                }
+
+                utterance = new SpeechSynthesisUtterance(text);
+                
+                // Select a realistic, cool female voice (prioritizing common female voices)
+                const femaleVoice = voices.find(voice => 
+                    voice.lang.startsWith('en-') && (
+                        voice.name.toLowerCase().includes('zira') ||
+                        voice.name.toLowerCase().includes('samantha') ||
+                        voice.name.toLowerCase().includes('victoria') ||
+                        voice.name.toLowerCase().includes('female') ||
+                        voice.name.includes('Google US English') || // Often female and realistic
+                        voice.name.includes('Microsoft Hazel') // Neural female if available
+                    )
+                ) || voices.find(voice => voice.lang.startsWith('en-')) || voices[0];
+
+                utterance.voice = femaleVoice;
+                utterance.rate = 0.85; // Slightly slower for a cool, relaxed pace
+                utterance.pitch = 1.1; // Slightly higher for a more engaging female tone
+                utterance.volume = 1;
+                
+                utterance.onend = () => {
+                    isPlaying = false;
+                    ttsIcon.classList.remove('playing');
+                    ttsIcon.textContent = '🔊';
+                };
+                
+                synth.speak(utterance);
+                isPlaying = true;
+                ttsIcon.classList.add('playing');
+                ttsIcon.textContent = '⏸️';
+            }
+        }
+    </script>
 </body>
-</html>
+    </html>
