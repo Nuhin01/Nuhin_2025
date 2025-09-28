@@ -53,6 +53,10 @@
             margin: 10px;
             color: #555;
         }
+        #visualizer {
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +66,13 @@
     <label>
         <input type="checkbox" id="volumeBoost" checked> Enhance voice volume 10x (default: on, may cause distortion)
     </label>
+    <label>
+        <input type="checkbox" id="noiseSuppression" checked> Enable noise suppression (default: on)
+    </label>
+    <label>
+        <input type="checkbox" id="visualization" checked> Enable real-time audio visualization (default: on)
+    </label>
+    <canvas id="visualizer" width="300" height="100"></canvas>
     <button id="startBtn">Start Recording</button>
     <button id="stopBtn" disabled>Stop Recording</button>
     <a id="downloadLink" download="recording.webm">Download Recording</a>
@@ -72,12 +83,18 @@
         let audioChunks = [];
         let audioStream;
         let audioContext;
+        let analyser;
+        let canvasCtx;
         const deviceSelect = document.getElementById('deviceSelect');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const downloadLink = document.getElementById('downloadLink');
         const status = document.getElementById('status');
         const volumeBoost = document.getElementById('volumeBoost');
+        const noiseSuppressionCheckbox = document.getElementById('noiseSuppression');
+        const visualization = document.getElementById('visualization');
+        const canvas = document.getElementById('visualizer');
+        canvasCtx = canvas.getContext('2d');
 
         // Initialize device list after getting permission
         async function populateDevices() {
@@ -111,6 +128,42 @@
             }
         }
 
+        // Draw visualization
+        function draw() {
+            requestAnimationFrame(draw);
+            if (!analyser || !mediaRecorder || mediaRecorder.state !== 'recording') {
+                return;
+            }
+            const bufferLength = analyser.fftSize;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteTimeDomainData(dataArray);
+
+            canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+            canvasCtx.lineWidth = 2;
+            canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+            canvasCtx.beginPath();
+
+            const sliceWidth = canvas.width * 1.0 / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * canvas.height / 2;
+
+                if (i === 0) {
+                    canvasCtx.moveTo(x, y);
+                } else {
+                    canvasCtx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            canvasCtx.lineTo(canvas.width, canvas.height / 2);
+            canvasCtx.stroke();
+        }
+
         // Start recording with selected device
         startBtn.addEventListener('click', async () => {
             const selectedDeviceId = deviceSelect.value;
@@ -122,23 +175,40 @@
             try {
                 const constraints = {
                     audio: {
-                        deviceId: { exact: selectedDeviceId }
+                        deviceId: { exact: selectedDeviceId },
+                        noiseSuppression: noiseSuppressionCheckbox.checked
                     }
                 };
                 
                 audioStream = await navigator.mediaDevices.getUserMedia(constraints);
                 
                 let recordingStream = audioStream;
+                analyser = null;
                 
-                if (volumeBoost.checked) {
+                const useContext = volumeBoost.checked || visualization.checked;
+                
+                if (useContext) {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     const source = audioContext.createMediaStreamSource(audioStream);
-                    const gainNode = audioContext.createGain();
-                    gainNode.gain.value = 10; // 10x volume boost
-                    const destination = audioContext.createMediaStreamDestination();
-                    source.connect(gainNode);
-                    gainNode.connect(destination);
-                    recordingStream = destination.stream;
+                    
+                    if (visualization.checked) {
+                        analyser = audioContext.createAnalyser();
+                        analyser.fftSize = 2048;
+                    }
+                    
+                    if (volumeBoost.checked) {
+                        const gainNode = audioContext.createGain();
+                        gainNode.gain.value = 10;
+                        const destination = audioContext.createMediaStreamDestination();
+                        source.connect(gainNode);
+                        gainNode.connect(destination);
+                        if (visualization.checked) {
+                            gainNode.connect(analyser);
+                        }
+                        recordingStream = destination.stream;
+                    } else if (visualization.checked) {
+                        source.connect(analyser);
+                    }
                 }
                 
                 mediaRecorder = new MediaRecorder(recordingStream);
@@ -164,6 +234,10 @@
                 stopBtn.disabled = false;
                 downloadLink.style.display = 'none';
                 status.textContent = 'Recording...';
+                
+                if (visualization.checked) {
+                    draw();
+                }
             } catch (error) {
                 console.error('Error starting recording:', error);
                 status.textContent = 'Error: Could not start recording. Ensure the device is connected.';
