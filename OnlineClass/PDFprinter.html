@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Page A4 Printable Website Theme</title>
+    <style>
+        /* General styles for screen */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+            margin: 0;
+            padding: 20mm;
+        }
+
+        .page {
+            width: 210mm; /* A4 width */
+            height: 297mm; /* A4 height - full page including margins for screen simulation */
+            margin: 20mm auto; /* Center with space between pages */
+            padding: 20mm; /* Internal padding as "margin" inside the page */
+            background-color: white;
+            border: 1px solid #ddd; /* Light gray border for paper-like effect - best subtle color */
+            border-radius: 10px; /* Rounded corners for the "round margin" */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            box-sizing: border-box; /* Include padding and border in dimensions */
+            overflow: hidden; /* Prevent content overflow on screen */
+            position: relative; /* For any absolute positioning if needed */
+        }
+
+        .page:not(:last-child) {
+            margin-bottom: 40mm; /* Extra space between pages on screen */
+        }
+
+        /* Print-specific styles */
+        @media print {
+            @page {
+                size: A4 portrait; /* Set page size to A4 */
+                margin: 20mm; /* Around margins for printing - 20mm on all sides */
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: white;
+            }
+
+            .page {
+                width: auto; /* Full width for print */
+                height: auto; /* Auto height to fit content */
+                margin: 0;
+                padding: 0;
+                border: none;
+                border-radius: 0; /* Remove rounding for print */
+                box-shadow: none;
+                overflow: visible; /* Allow content to flow */
+                page-break-after: always; /* Force a new page after each .page div */
+            }
+
+            .page:last-child {
+                page-break-after: avoid; /* No extra page after the last one */
+            }
+
+            /* Hide non-printable elements if any */
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <h1>Page 1: Your Printable Content</h1>
+        <p>This is a sample multi-page website themed to look like A4 paper. When you print it (Ctrl+P or Cmd+P), each section will print on a separate A4 page with 20mm margins all around.</p>
+        <p>The on-screen view simulates A4 pages with rounded corners and a light gray border (#ddd) for a clean, professional look. You can change the border color in CSS if needed (e.g., #007bff for blue).</p>
+    </div>
+    
+    <div class="page">
+        <h1>Page 2: Additional Content</h1>
+        <p>Add more content here for the second page. If the content exceeds the page height, it will automatically flow or you can adjust with page breaks.</p>
+        <p>For longer content, you can add more .page divs or let CSS handle overflows in print mode.</p>
+    </div>
+    
+    <div class="page">
+        <h1>Page 3: Even More Content</h1>
+        <p>This is the third page. Duplicate the .page div as needed for multiple pages.</p>
+        <p>Ensure content fits within approximately 257mm height (A4 minus margins) per page for best results, or use CSS breaks inside if needed.</p>
+    </div>
+</body>
+</html>
