@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollinations.AI Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #ddd;
+            margin: 0 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #output img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #output audio {
+            width: 100%;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pollinations.AI Web App</h1>
+    <div class="tab-container">
+        <div class="tab active" onclick="openTab('image')">Image Generation</div>
+        <div class="tab" onclick="openTab('text')">Text Generation</div>
+        <div class="tab" onclick="openTab('audio')">Audio Generation</div>
+    </div>
+    <div class="content">
+        <div id="image" class="section active">
+            <input type="text" id="image-prompt" placeholder="Enter prompt for image (e.g., a beautiful landscape)">
+            <button onclick="generateImage()">Generate Image</button>
+        </div>
+        <div id="text" class="section">
+            <input type="text" id="text-prompt" placeholder="Enter prompt for text (e.g., Write a short story about...)">
+            <button onclick="generateText()">Generate Text</button>
+        </div>
+        <div id="audio" class="section">
+            <input type="text" id="audio-prompt" placeholder="Enter prompt for audio (e.g., A motivational speech)">
+            <select id="voice">
+                <option value="alloy">Alloy</option>
+                <option value="echo">Echo</option>
+                <option value="fable">Fable</option>
+                <option value="onyx">Onyx</option>
+                <option value="nova">Nova</option>
+                <option value="shimmer">Shimmer</option>
+            </select>
+            <button onclick="generateAudio()">Generate Audio</button>
+        </div>
+        <div id="loading">Generating... Please wait.</div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const sections = document.querySelectorAll('.section');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            sections.forEach(section => section.classList.remove('active'));
+            document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            document.getElementById('output').innerHTML = '';
+        }
+
+        async function generateImage() {
+            const prompt = document.getElementById('image-prompt').value.trim();
+            if (!prompt) return alert('Please enter a prompt.');
+            showLoading();
+            try {
+                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to generate image.');
+                const blob = await response.blob();
+                const imgUrl = URL.createObjectURL(blob);
+                document.getElementById('output').innerHTML = `<img src="${imgUrl}" alt="Generated Image">`;
+            } catch (error) {
+                alert('Error generating image: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function generateText() {
+            const prompt = document.getElementById('text-prompt').value.trim();
+            if (!prompt) return alert('Please enter a prompt.');
+            showLoading();
+            try {
+                const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to generate text.');
+                const text = await response.text();
+                document.getElementById('output').innerHTML = `<p>${text}</p>`;
+            } catch (error) {
+                alert('Error generating text: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function generateAudio() {
+            const prompt = document.getElementById('audio-prompt').value.trim();
+            const voice = document.getElementById('voice').value;
+            if (!prompt) return alert('Please enter a prompt.');
+            showLoading();
+            try {
+                const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai-audio&voice=${voice}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to generate audio.');
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+                document.getElementById('output').innerHTML = `<audio controls><source src="${audioUrl}" type="audio/mpeg"></audio>`;
+            } catch (error) {
+                alert('Error generating audio: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('output').innerHTML = '';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+  </html>
