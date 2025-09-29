@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional AI Assistant</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .chat-log {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #ecf0f1;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background: #3498db;
+            color: white;
+            text-align: right;
+        }
+        .assistant-message {
+            background: white;
+            color: #2c3e50;
+            border: 1px solid #bdc3c7;
+        }
+        .chat-input {
+            display: flex;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #bdc3c7;
+        }
+        #userInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        #sendButton {
+            padding: 10px 20px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #sendButton:hover {
+            background: #34495e;
+        }
+        .loading {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Professional AI Assistant</h2>
+            <p>How may I assist you today?</p>
+        </div>
+        <div id="chatLog" class="chat-log"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://text.pollinations.ai";
+        const MAX_HISTORY_LENGTH = 10;
+        const SYSTEM_PROMPT = "You are a sophisticated and professional AI assistant. Respond in a courteous, concise, and expert manner. Use formal language, avoid slang, and provide value-driven insights. Structure responses clearly, using bullet points or numbered lists when appropriate. Always end with a polite invitation for further questions.";
+
+        let conversationHistory = JSON.parse(localStorage.getItem('conversationHistory')) || [];
+
+        function loadHistory() {
+            const chatLog = document.getElementById('chatLog');
+            chatLog.innerHTML = '';
+            conversationHistory.slice(-MAX_HISTORY_LENGTH).forEach(exchange => {
+                addMessage('user', exchange.user);
+                addMessage('assistant', exchange.assistant);
+            });
+        }
+
+        function saveHistory() {
+            localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+        }
+
+        function addMessage(sender, message) {
+            const chatLog = document.getElementById('chatLog');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = `${sender === 'user' ? 'You' : 'Assistant'}: ${message}`;
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function formatHistoryForPrompt() {
+            if (conversationHistory.length === 0) return '';
+            let historyStr = 'Previous conversation:\n';
+            conversationHistory.slice(-MAX_HISTORY_LENGTH).forEach(exchange => {
+                historyStr += `User: ${exchange.user}\nAssistant: ${exchange.assistant}\n`;
+            });
+            return historyStr;
+        }
+
+        async function generateResponse(userInput) {
+            const history = formatHistoryForPrompt();
+            const fullPrompt = `${SYSTEM_PROMPT}\n\n${history}\nUser: ${userInput}\nAssistant:`;
+            
+            const encodedPrompt = encodeURIComponent(fullPrompt);
+            const url = `${API_BASE}/${encodedPrompt}`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                let aiResponse = await response.text();
+                aiResponse = aiResponse.trim().replace(/\n$/, '');
+                return aiResponse;
+            } catch (error) {
+                return `I apologize for the technical issue. Please try again. Error: ${error.message}`;
+            }
+        }
+
+        function addToHistory(userInput, assistantResponse) {
+            conversationHistory.push({
+                timestamp: new Date().toISOString(),
+                user: userInput,
+                assistant: assistantResponse
+            });
+            if (conversationHistory.length > MAX_HISTORY_LENGTH * 2) { // Buffer for pairs
+                conversationHistory = conversationHistory.slice(-MAX_HISTORY_LENGTH * 2);
+            }
+            saveHistory();
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage('user', message);
+            userInput.value = '';
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant-message loading';
+            loadingDiv.textContent = 'Assistant: Thinking...';
+            document.getElementById('chatLog').appendChild(loadingDiv);
+            document.getElementById('chatLog').scrollTop = document.getElementById('chatLog').scrollHeight;
+
+            const assistantResponse = await generateResponse(message);
+            
+            // Remove loading message
+            const chatLog = document.getElementById('chatLog');
+            chatLog.removeChild(loadingDiv);
+            
+            addMessage('assistant', assistantResponse);
+            addToHistory(message, assistantResponse);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Initialize
+        loadHistory();
+    </script>
+</body>
+  </html>
