@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Chat Haven: Chat with AI magic, powered by Pollination!">
+    <title>AI Chat Haven</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header/Hero Section */
+        .hero {
+            text-align: center;
+            padding: 100px 0 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .hero p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        /* About Section */
+        .about {
+            padding: 80px 0;
+            text-align: center;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        .about h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+        .about p {
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.8;
+        }
+
+        /* Footer */
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        footer a {
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+
+        /* Chat Widget Styles - Neumorphic Design */
+        #chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5em;
+        }
+        #chat-toggle:hover {
+            transform: scale(1.1);
+        }
+        #chat-widget {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        #chat-widget.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        #chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .ai-message {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .ai-message::before {
+            content: '🤖';
+            margin-right: 5px;
+            font-size: 0.8em;
+        }
+        #chat-input-container {
+            display: flex;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            gap: 10px;
+        }
+        #chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            resize: none;
+            min-height: 20px;
+            max-height: 100px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        #chat-input:focus {
+            border-color: #667eea;
+        }
+        .input-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, transform 0.3s ease;
+            font-size: 1.2em;
+        }
+        #send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        #send-btn:hover {
+            transform: scale(1.05);
+        }
+        #send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #mic-btn {
+            background: #28a745;
+            color: white;
+        }
+        #mic-btn:hover:not(:disabled) {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        #mic-btn.listening {
+            background: #dc3545;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        #mic-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .typing-indicator {
+            align-self: flex-start;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 18px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-style: italic;
+            color: #6c757d;
+        }
+        .typing-indicator::before {
+            content: '🤖 AI is thinking...';
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #chat-widget {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 100px);
+                bottom: 80px;
+                right: 20px;
+                left: 20px;
+            }
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            .hero p {
+                font-size: 1.2em;
+            }
+        }
+
+        /* Accessibility */
+        #chat-toggle:focus, .input-btn:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        .message[role="log"] {
+            aria-live: polite;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="container">
+            <h1>AI Chat Haven</h1>
+            <p>Chat with AI magic, powered by Pollination!</p>
+            <a href="#chat-widget" class="btn" onclick="toggleChat()">Start Chatting</a>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="container">
+            <h2>About This Haven</h2>
+            <p>Step into a world where conversations bloom with creativity! Our AI Chat Haven uses the free Pollination AI text generation API to deliver fun, witty, and helpful responses. Whether you're brainstorming ideas or just chatting for laughs, your words come alive here. 🌸</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AI Chat Haven. Built with ❤️ and AI magic. <a href="https://github.com/yourusername/ai-chat-haven" target="_blank">Source on GitHub</a></p>
+        </div>
+    </footer>
+
+    <!-- Chat Widget -->
+    <div id="chat-toggle" onclick="toggleChat()" role="button" aria-label="Toggle chat widget" tabindex="0" onkeydown="if(event.key==='Enter') toggleChat()">
+        💬
+    </div>
+    <div id="chat-widget" role="dialog" aria-labelledby="chat-header" aria-live="polite">
+        <div id="chat-header">Chat with Lovable AI</div>
+        <div id="chat-messages" role="log"></div>
+        <div id="chat-input-container">
+            <textarea id="chat-input" placeholder="Type your message... or speak! 🎤" rows="1" aria-label="Message input"></textarea>
+            <button id="mic-btn" class="input-btn" onclick="toggleVoiceInput()" aria-label="Voice input" tabindex="0" onkeydown="if(event.key==='Enter') toggleVoiceInput()">
+                🎤
+            </button>
+            <button id="send-btn" class="input-btn" onclick="sendMessage()" aria-label="Send message" tabindex="0" onkeydown="if(event.key==='Enter' && !event.shiftKey) {event.preventDefault(); sendMessage()}">
+                ✈️
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Chat functionality variables
+        let messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
+        let recognition; // For speech recognition
+        let isListening = false;
+
+        // Initialize chat on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChatHistory();
+            setupSpeechRecognition(); // Set up voice input
+            autoResizeInput(); // Initial resize
+        });
+
+        // Toggle chat widget
+        function toggleChat() {
+            const widget = document.getElementById('chat-widget');
+            const toggle = document.getElementById('chat-toggle');
+            widget.classList.toggle('show');
+            if (widget.classList.contains('show')) {
+                toggle.innerHTML = '❌';
+                toggle.setAttribute('aria-label', 'Close chat widget');
+                document.getElementById('chat-input').focus();
+            } else {
+                toggle.innerHTML = '💬';
+                toggle.setAttribute('aria-label', 'Open chat widget');
+            }
+        }
+
+        // Load chat history from localStorage (limit to 10 exchanges)
+        function loadChatHistory() {
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = '';
+            const limitedMessages = messages.slice(-20); // Up to 10 exchanges (user + AI)
+            limitedMessages.forEach(msg => {
+                addMessageToChat(msg.text, msg.isUser);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Add message to chat UI
+        function addMessageToChat(text, isUser) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            messageDiv.textContent = text;
+            messageDiv.setAttribute('role', 'log');
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chat-messages');
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.id = 'typing-indicator';
+            messagesContainer.appendChild(indicator);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Send message function
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // Add user message
+            addMessageToChat(text, true);
+            messages.push({ text, isUser: true });
+            input.value = '';
+            autoResizeInput();
+
+            // Disable send button during processing
+            const sendBtn = document.getElementById('send-btn');
+            sendBtn.disabled = true;
+
+            // Show typing
+            showTypingIndicator();
+
+            try {
+                // Prepare prompt for Pollination AI
+                const prompt = `You are a lovable, witty AI assistant. Respond helpfully and fun to: ${text}`;
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+                if (!response.ok) throw new Error('API request failed');
+                const data = await response.json();
+                const aiText = data.text || 'Oops, something went wrong! Try again? 😅';
+
+                // Add AI response
+                hideTypingIndicator();
+                addMessageToChat(aiText, false);
+                messages.push({ text: aiText, isUser: false });
+
+                // Limit history
+                if (messages.length > 20) messages = messages.slice(-20);
+                localStorage.setItem('chatHistory', JSON.stringify(messages));
+            } catch (error) {
+                hideTypingIndicator();
+                addMessageToChat('Sorry, I hit a snag! Check your connection and try again. 🚀', false);
+                console.error('Chat error:', error);
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Auto-resize textarea
+        function autoResizeInput() {
+            const input = document.getElementById('chat-input');
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+        }
+
+        // Event listeners for input
+        document.getElementById('chat-input').addEventListener('input', autoResizeInput);
+        document.getElementById('chat-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Setup Speech Recognition (Web Speech API)
+        function setupSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                console.warn('Speech recognition not supported in this browser.');
+                document.getElementById('mic-btn').style.display = 'none'; // Hide if not supported
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US'; // Default to English; can be dynamic
+
+            recognition.onstart = () => {
+                isListening = true;
+                document.getElementById('mic-btn').classList.add('listening');
+                document.getElementById('mic-btn').innerHTML = '🔴'; // Visual feedback
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const input = document.getElementById('chat-input');
+                input.value = transcript;
+                autoResizeInput();
+                input.focus();
+                // Optionally auto-send after a short delay, but for now, just fill input
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                let errorMsg = 'Voice input error. ';
+                if (event.error === 'not-allowed') errorMsg += 'Microphone access denied.';
+                else if (event.error === 'no-speech') errorMsg += 'No speech detected.';
+                else errorMsg += 'Try again.';
+                alert(errorMsg); // Simple alert; could integrate into chat
+                stopVoiceInput();
+            };
+
+            recognition.onend = () => {
+                stopVoiceInput();
+            };
+        }
+
+        // Toggle voice input
+        function toggleVoiceInput() {
+            if (!recognition) return;
+
+            if (isListening) {
+                stopVoiceInput();
+            } else {
+                recognition.start();
+            }
+        }
+
+        // Stop voice input
+        function stopVoiceInput() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isListening = false;
+            const micBtn = document.getElementById('mic-btn');
+            micBtn.classList.remove('listening');
+            micBtn.innerHTML = '🎤';
+        }
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (isListening) stopVoiceInput();
+            localStorage.setItem('chatHistory', JSON.stringify(messages));
+        });
+
+        // Smooth scroll for button (if needed)
+        document.querySelector('.btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleChat();
+        });
+    </script>
+</body>
+  </html>
