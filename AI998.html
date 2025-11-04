@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Chat Haven: Chat with AI magic, powered by Pollination!">
+    <meta name="description" content="AI Chat Haven: Text-chat with AI magic—free and fun! Powered by Pollination AI">
     <title>AI Chat Haven</title>
     <style>
         /* Reset and base styles */
@@ -219,27 +219,6 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        #mic-btn {
-            background: #28a745;
-            color: white;
-        }
-        #mic-btn:hover:not(:disabled) {
-            background: #218838;
-            transform: scale(1.05);
-        }
-        #mic-btn.listening {
-            background: #dc3545;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        #mic-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
         .typing-indicator {
             align-self: flex-start;
             background: white;
@@ -285,15 +264,15 @@
     <section class="hero">
         <div class="container">
             <h1>AI Chat Haven</h1>
-            <p>Chat with AI magic, powered by Pollination!</p>
-            <a href="#chat-widget" class="btn" onclick="toggleChat()">Start Chatting</a>
+            <p>Text-chat with AI magic—free and fun! Powered by Pollination AI</p>
+            <a href="#chat-widget" class="btn" onclick="toggleChat()">Start Texting</a>
         </div>
     </section>
 
     <section class="about">
         <div class="container">
             <h2>About This Haven</h2>
-            <p>Step into a world where conversations bloom with creativity! Our AI Chat Haven uses the free Pollination AI text generation API to deliver fun, witty, and helpful responses. Whether you're brainstorming ideas or just chatting for laughs, your words come alive here. 🌸</p>
+            <p>A simple text chat app using Pollination's free API for witty, helpful AI responses. Just type, send, and enjoy the conversation! 🌸</p>
         </div>
     </section>
 
@@ -311,10 +290,7 @@
         <div id="chat-header">Chat with Lovable AI</div>
         <div id="chat-messages" role="log"></div>
         <div id="chat-input-container">
-            <textarea id="chat-input" placeholder="Type your message... or speak! 🎤" rows="1" aria-label="Message input"></textarea>
-            <button id="mic-btn" class="input-btn" onclick="toggleVoiceInput()" aria-label="Voice input" tabindex="0" onkeydown="if(event.key==='Enter') toggleVoiceInput()">
-                🎤
-            </button>
+            <textarea id="chat-input" placeholder="Type your message..." rows="1" aria-label="Message input"></textarea>
             <button id="send-btn" class="input-btn" onclick="sendMessage()" aria-label="Send message" tabindex="0" onkeydown="if(event.key==='Enter' && !event.shiftKey) {event.preventDefault(); sendMessage()}">
                 ✈️
             </button>
@@ -324,13 +300,10 @@
     <script>
         // Chat functionality variables
         let messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
-        let recognition; // For speech recognition
-        let isListening = false;
 
         // Initialize chat on load
         document.addEventListener('DOMContentLoaded', () => {
             loadChatHistory();
-            setupSpeechRecognition(); // Set up voice input
             autoResizeInput(); // Initial resize
         });
 
@@ -449,75 +422,8 @@
             }
         });
 
-        // Setup Speech Recognition (Web Speech API)
-        function setupSpeechRecognition() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                console.warn('Speech recognition not supported in this browser.');
-                document.getElementById('mic-btn').style.display = 'none'; // Hide if not supported
-                return;
-            }
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = 'en-US'; // Default to English; can be dynamic
-
-            recognition.onstart = () => {
-                isListening = true;
-                document.getElementById('mic-btn').classList.add('listening');
-                document.getElementById('mic-btn').innerHTML = '🔴'; // Visual feedback
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                const input = document.getElementById('chat-input');
-                input.value = transcript;
-                autoResizeInput();
-                input.focus();
-                // Optionally auto-send after a short delay, but for now, just fill input
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                let errorMsg = 'Voice input error. ';
-                if (event.error === 'not-allowed') errorMsg += 'Microphone access denied.';
-                else if (event.error === 'no-speech') errorMsg += 'No speech detected.';
-                else errorMsg += 'Try again.';
-                alert(errorMsg); // Simple alert; could integrate into chat
-                stopVoiceInput();
-            };
-
-            recognition.onend = () => {
-                stopVoiceInput();
-            };
-        }
-
-        // Toggle voice input
-        function toggleVoiceInput() {
-            if (!recognition) return;
-
-            if (isListening) {
-                stopVoiceInput();
-            } else {
-                recognition.start();
-            }
-        }
-
-        // Stop voice input
-        function stopVoiceInput() {
-            if (recognition) {
-                recognition.stop();
-            }
-            isListening = false;
-            const micBtn = document.getElementById('mic-btn');
-            micBtn.classList.remove('listening');
-            micBtn.innerHTML = '🎤';
-        }
-
         // Clean up on page unload
         window.addEventListener('beforeunload', () => {
-            if (isListening) stopVoiceInput();
             localStorage.setItem('chatHistory', JSON.stringify(messages));
         });
 
@@ -528,4 +434,4 @@
         });
     </script>
 </body>
-  </html>
+</html>
