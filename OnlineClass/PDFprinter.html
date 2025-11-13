@@ -3,91 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Page A4 Printable Website Theme</title>
+    <title>Full-Screen PDF Reader</title>
     <style>
-        /* General styles for screen */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
-            color: #333;
             margin: 0;
-            padding: 20mm;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
         }
-
-        .page {
-            width: 210mm; /* A4 width */
-            height: 297mm; /* A4 height - full page including margins for screen simulation */
-            margin: 20mm auto; /* Center with space between pages */
-            padding: 20mm; /* Internal padding as "margin" inside the page */
-            background-color: white;
-            border: 1px solid #ddd; /* Light gray border for paper-like effect - best subtle color */
-            border-radius: 10px; /* Rounded corners for the "round margin" */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            box-sizing: border-box; /* Include padding and border in dimensions */
-            overflow: hidden; /* Prevent content overflow on screen */
-            position: relative; /* For any absolute positioning if needed */
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            color: #fff;
         }
-
-        .page:not(:last-child) {
-            margin-bottom: 40mm; /* Extra space between pages on screen */
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
         }
-
-        /* Print-specific styles */
-        @media print {
-            @page {
-                size: A4 portrait; /* Set page size to A4 */
-                margin: 20mm; /* Around margins for printing - 20mm on all sides */
-            }
-
-            body {
-                margin: 0;
-                padding: 0;
-                background-color: white;
-            }
-
-            .page {
-                width: auto; /* Full width for print */
-                height: auto; /* Auto height to fit content */
-                margin: 0;
-                padding: 0;
-                border: none;
-                border-radius: 0; /* Remove rounding for print */
-                box-shadow: none;
-                overflow: visible; /* Allow content to flow */
-                page-break-after: always; /* Force a new page after each .page div */
-            }
-
-            .page:last-child {
-                page-break-after: avoid; /* No extra page after the last one */
-            }
-
-            /* Hide non-printable elements if any */
-            .no-print {
-                display: none;
-            }
+        #controls input[type="file"],
+        #controls input[type="text"] {
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+        }
+        #controls button {
+            padding: 5px 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #pdf-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+        #canvas-container {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        #pdf-canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        #text-layer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+            overflow: hidden;
+            pointer-events: auto; /* Allow text selection */
+        }
+        #text-layer > div {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+        #nav-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 999;
+        }
+        #pdf-container:hover #nav-controls {
+            opacity: 1;
+        }
+        #nav-controls button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #page-info {
+            margin: 0 10px;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <h1>Page 1: Your Printable Content</h1>
-        <p>This is a sample multi-page website themed to look like A4 paper. When you print it (Ctrl+P or Cmd+P), each section will print on a separate A4 page with 20mm margins all around.</p>
-        <p>The on-screen view simulates A4 pages with rounded corners and a light gray border (#ddd) for a clean, professional look. You can change the border color in CSS if needed (e.g., #007bff for blue).</p>
+    <div id="loader" class="hidden">Loading PDF...</div>
+    <div id="controls">
+        <input type="file" id="file-input" accept=".pdf">
+        <input type="text" id="url-input" placeholder="Enter PDF URL">
+        <button id="load-btn">Load PDF</button>
     </div>
-    
-    <div class="page">
-        <h1>Page 2: Additional Content</h1>
-        <p>Add more content here for the second page. If the content exceeds the page height, it will automatically flow or you can adjust with page breaks.</p>
-        <p>For longer content, you can add more .page divs or let CSS handle overflows in print mode.</p>
+    <div id="pdf-container" class="hidden">
+        <div id="canvas-container">
+            <canvas id="pdf-canvas"></canvas>
+            <div id="text-layer"></div>
+        </div>
+        <div id="nav-controls">
+            <button id="prev">Previous</button>
+            <span id="page-info">Page 1 of 1</span>
+            <button id="next">Next</button>
+        </div>
     </div>
-    
-    <div class="page">
-        <h1>Page 3: Even More Content</h1>
-        <p>This is the third page. Duplicate the .page div as needed for multiple pages.</p>
-        <p>Ensure content fits within approximately 257mm height (A4 minus margins) per page for best results, or use CSS breaks inside if needed.</p>
-    </div> 
-<div class="page">
-    <p> Nuhin want to male a lots of page now </p>
-</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.338/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.338/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let currentPage = 1;
+        let scale = 1.5; // Initial scale, will adjust dynamically
+
+        const pdfContainer = document.getElementById('pdf-container');
+        const canvasContainer = document.getElementById('canvas-container');
+        const canvas = document.getElementById('pdf-canvas');
+        const textLayer = document.getElementById('text-layer');
+        const ctx = canvas.getContext('2d');
+        const controls = document.getElementById('controls');
+        const loader = document.getElementById('loader');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const pageInfo = document.getElementById('page-info');
+        const fileInput = document.getElementById('file-input');
+        const urlInput = document.getElementById('url-input');
+        const loadBtn = document.getElementById('load-btn');
+
+        // Enter fullscreen mode
+        function enterFullscreen() {
+            if (pdfContainer.requestFullscreen) {
+                pdfContainer.requestFullscreen();
+            } else if (pdfContainer.mozRequestFullScreen) { // Firefox
+                pdfContainer.mozRequestFullScreen();
+            } else if (pdfContainer.webkitRequestFullscreen) { // Chrome, Safari, Opera
+                pdfContainer.webkitRequestFullscreen();
+            } else if (pdfContainer.msRequestFullscreen) { // IE/Edge
+                pdfContainer.msRequestFullscreen();
+            }
+        }
+
+        // Load PDF from file or URL
+        async function loadPDF(source) {
+            loader.classList.remove('hidden');
+            controls.classList.add('hidden');
+            pdfContainer.classList.remove('hidden');
+
+            try {
+                pdfDoc = await pdfjsLib.getDocument(source).promise;
+                pageInfo.textContent = `Page ${currentPage} of ${pdfDoc.numPages}`;
+                await renderPage(currentPage);
+                enterFullscreen();
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                alert('Failed to load PDF. Please try again.');
+                resetUI();
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        // Render a specific page
+        async function renderPage(pageNum) {
+            const page = await pdfDoc.getPage(pageNum);
+
+            // Calculate scale to fit the screen
+            const viewport = page.getViewport({ scale: 1 });
+            const containerWidth = pdfContainer.clientWidth;
+            const containerHeight = pdfContainer.clientHeight;
+            const scaleX = containerWidth / viewport.width;
+            const scaleY = containerHeight / viewport.height;
+            scale = Math.min(scaleX, scaleY) * 0.95; // 95% to add some margin
+
+            const scaledViewport = page.getViewport({ scale });
+
+            canvas.height = scaledViewport.height;
+            canvas.width = scaledViewport.width;
+            canvasContainer.style.width = `${scaledViewport.width}px`;
+            canvasContainer.style.height = `${scaledViewport.height}px`;
+
+            // Render PDF to canvas
+            await page.render({
+                canvasContext: ctx,
+                viewport: scaledViewport
+            }).promise;
+
+            // Render text layer for selection
+            textLayer.innerHTML = ''; // Clear previous
+            textLayer.style.width = `${canvas.width}px`;
+            textLayer.style.height = `${canvas.height}px`;
+
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContentSource: textContent,
+                container: textLayer,
+                viewport: scaledViewport,
+                textDivs: []
+            });
+
+            updateNavButtons();
+        }
+
+        // Update navigation buttons
+        function updateNavButtons() {
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= pdfDoc.numPages;
+            pageInfo.textContent = `Page ${currentPage} of ${pdfDoc.numPages}`;
+        }
+
+        // Navigation events
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < pdfDoc.numPages) {
+                currentPage++;
+                renderPage(currentPage);
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+            } else if (e.key === 'ArrowRight' && currentPage < pdfDoc.numPages) {
+                currentPage++;
+                renderPage(currentPage);
+            }
+        });
+
+        // Clear text selection on mouse up
+        document.addEventListener('mouseup', () => {
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
+            }
+        });
+
+        // Handle file input
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    loadPDF({ data: event.target.result });
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        // Handle URL input and load button
+        loadBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (url) {
+                loadPDF(url);
+            } else if (fileInput.files.length > 0) {
+                // If file is selected but not triggered change, load it
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    loadPDF({ data: event.target.result });
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert('Please select a file or enter a URL.');
+            }
+        });
+
+        // Reset UI if needed
+        function resetUI() {
+            controls.classList.remove('hidden');
+            pdfContainer.classList.add('hidden');
+            loader.classList.add('hidden');
+        }
+    </script>
 </body>
-</html>
+    </html>
