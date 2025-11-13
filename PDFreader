@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple PDF Reader Web App</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+        #toolbar { padding: 10px; background: #f0f0f0; text-align: center; }
+        #viewerContainer { flex: 1; overflow: hidden; }
+    </style>
+    <!-- Load PDF.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.mjs" type="module"></script>
+</head>
+<body>
+    <div id="toolbar">
+        <input type="file" id="fileInput" accept=".pdf" />
+        <button id="fullScreenBtn">Full Screen</button>
+    </div>
+    <div id="viewerContainer">
+        <canvas id="pdfCanvas"></canvas>
+    </div>
+
+    <script type="module">
+        const { pdfjsLib } = globalThis;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.min.mjs';
+
+        const fileInput = document.getElementById('fileInput');
+        const pdfCanvas = document.getElementById('pdfCanvas');
+        const ctx = pdfCanvas.getContext('2d');
+        const fullScreenBtn = document.getElementById('fullScreenBtn');
+        let pdfDoc = null;
+        let pageNum = 1;
+        let scale = 1.5;
+        let textLayer = null;
+
+        // Handle file upload
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const arrayBuffer = await file.arrayBuffer();
+                pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                renderPage(pageNum);
+            }
+        });
+
+        // Render PDF page
+        async function renderPage(num) {
+            const page = await pdfDoc.getPage(num);
+            const viewport = page.getViewport({ scale });
+
+            pdfCanvas.height = viewport.height;
+            pdfCanvas.width = viewport.width;
+
+            await page.render({ canvasContext: ctx, viewport }).promise;
+
+            // Add text layer for selection
+            if (textLayer) textLayer.remove();
+            textLayer = document.createElement('div');
+            textLayer.style.position = 'absolute';
+            textLayer.style.top = '0';
+            textLayer.style.left = '0';
+            textLayer.style.height = `${viewport.height}px`;
+            textLayer.style.width = `${viewport.width}px`;
+            textLayer.style.pointerEvents = 'auto'; // Allows text selection
+            document.getElementById('viewerContainer').appendChild(textLayer);
+
+            const textContent = await page.getTextContent();
+            pdfjsLib.renderTextLayer({
+                textContentSource: textContent,
+                container: textLayer,
+                viewport,
+                textDivs: [],
+            });
+        }
+
+        // Full screen button (uses browser full screen API)
+        fullScreenBtn.addEventListener('click', () => {
+            const viewer = document.getElementById('viewerContainer');
+            if (viewer.requestFullscreen) {
+                viewer.requestFullscreen();
+            } else if (viewer.mozRequestFullScreen) { // Firefox
+                viewer.mozRequestFullScreen();
+            } else if (viewer.webkitRequestFullscreen) { // Chrome, Safari, Opera
+                viewer.webkitRequestFullscreen();
+            } else if (viewer.msRequestFullscreen) { // IE/Edge
+                viewer.msRequestFullscreen();
+            }
+        });
+
+        // Optional: Handle page navigation (add buttons if needed)
+        // For simplicity, this renders the first page; extend for multi-page.
+    </script>
+</body>
+</html>
