@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-Button Reaction Time Trainer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #e0f7fa, #b2ebf2);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        h1 {
+            color: #0277bd;
+            margin-bottom: 10px;
+        }
+        #statsTable {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        #statsTable th {
+            background: #0277bd;
+            color: white;
+            padding: 15px 12px;
+            font-weight: bold;
+        }
+        #statsTable td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+        #statsTable tr:hover {
+            background: #f8f9ff;
+        }
+        #instructions {
+            font-size: 20px;
+            margin: 25px 0;
+            color: #555;
+            font-weight: 500;
+        }
+        #buttonsContainer {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 350px;
+            margin: 30px auto;
+        }
+        .reaction-btn {
+            width: 160px;
+            height: 160px;
+            background-color: #dc3545;
+            border: 4px solid #333;
+            border-radius: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            transition: all 0.15s ease;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        .reaction-btn:hover:not(.green) {
+            transform: scale(1.02);
+        }
+        .reaction-btn:active {
+            transform: scale(0.98);
+        }
+        .reaction-btn.green {
+            background-color: #28a745 !important;
+            color: white !important;
+            box-shadow: 0 0 25px rgba(40, 167, 69, 0.6) !important;
+            transform: scale(1.08) !important;
+        }
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px;
+            min-height: 35px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.7);
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>4-Button Reaction Time Trainer</h1>
+    <table id="statsTable">
+        <thead>
+            <tr>
+                <th>Button</th>
+                <th>Average (ms)</th>
+                <th>Best (ms)</th>
+                <th>Attempts</th>
+            </tr>
+        </thead>
+        <tbody id="statsBody"></tbody>
+    </table>
+    <p id="instructions">Initializing game...</p>
+    <div id="buttonsContainer">
+        <div id="btn0" class="reaction-btn" data-btn="0"></div>
+        <div id="btn1" class="reaction-btn" data-btn="1"></div>
+        <div id="btn2" class="reaction-btn" data-btn="2"></div>
+        <div id="btn3" class="reaction-btn" data-btn="3"></div>
+    </div>
+    <p id="result"></p>
+
+    <script>
+        const buttonElements = Array.from(document.querySelectorAll('.reaction-btn'));
+        const statsBody = document.getElementById('statsBody');
+        const instructionsEl = document.getElementById('instructions');
+        const resultEl = document.getElementById('result');
+        const buttonStats = Array.from({length: 4}, () => ({count: 0, sum: 0, min: Infinity}));
+        const totalStats = {count: 0, sum: 0, min: Infinity};
+        let startTime;
+
+        // Initialize table
+        for (let i = 0; i < 5; i++) {
+            const tr = document.createElement('tr');
+            const label = i < 4 ? `Button ${i + 1}` : 'TOTAL';
+            tr.innerHTML = `<td>${label}</td><td>--</td><td>--</td><td>0</td>`;
+            statsBody.appendChild(tr);
+        }
+
+        function updateTable() {
+            for (let i = 0; i < 4; i++) {
+                const row = statsBody.rows[i];
+                const s = buttonStats[i];
+                row.cells[1].textContent = s.count ? Math.round(s.sum / s.count) : '--';
+                row.cells[2].textContent = s.count ? Math.round(s.min) : '--';
+                row.cells[3].textContent = s.count;
+            }
+            const totalRow = statsBody.rows[4];
+            totalRow.cells[1].textContent = totalStats.count ? Math.round(totalStats.sum / totalStats.count) : '--';
+            totalRow.cells[2].textContent = totalStats.count ? Math.round(totalStats.min) : '--';
+            totalRow.cells[3].textContent = totalStats.count;
+        }
+
+        function nextRound() {
+            buttonElements.forEach(btn => {
+                btn.classList.remove('green');
+                btn.textContent = '';
+            });
+            resultEl.textContent = '';
+            instructionsEl.textContent = 'Wait for the green button...';
+            const delay = Math.random() * 3000 + 2000;
+            setTimeout(() => {
+                const randIdx = Math.floor(Math.random() * 4);
+                const greenBtn = buttonElements[randIdx];
+                greenBtn.classList.add('green');
+                greenBtn.textContent = 'CLICK!';
+                startTime = performance.now();
+                instructionsEl.textContent = 'Click the GREEN button NOW!';
+            }, delay);
+        }
+
+        function handleClick(event) {
+            const btn = event.currentTarget;
+            if (!btn.classList.contains('green')) {
+                resultEl.innerHTML = '<span style="color: #dc3545; font-size: 26px;">Wrong! 0 ms</span>';
+                buttonElements.forEach(b => b.classList.remove('green'));
+                setTimeout(nextRound, 1200);
+                return;
+            }
+            const idx = parseInt(btn.dataset.btn);
+            const reactionTime = performance.now() - startTime;
+            // Update button stats
+            const s = buttonStats[idx];
+            s.count++;
+            s.sum += reactionTime;
+            s.min = Math.min(s.min, reactionTime);
+            // Update total stats
+            totalStats.count++;
+            totalStats.sum += reactionTime;
+            totalStats.min = Math.min(totalStats.min, reactionTime);
+            resultEl.innerHTML = `<span style="color: #28a745; font-size: 26px;">Excellent! \( {Math.round(reactionTime)} ms (Button \){idx + 1})</span>`;
+            updateTable();
+            buttonElements.forEach(b => b.classList.remove('green'));
+            setTimeout(nextRound, 1200);
+        }
+
+        // Attach listeners
+        buttonElements.forEach(btn => btn.addEventListener('click', handleClick));
+
+        // Start the game
+        nextRound();
+    </script>
+</body>
+</html>
